@@ -2030,24 +2030,6 @@ export default function App() {
             <ChevronRight size={18} />
           </button>
 
-          {/* Active AI Engine Badge */}
-          <div 
-            className="glass-panel"
-            style={{
-              padding: '8px 14px',
-              borderRadius: '10px',
-              fontSize: '0.8rem',
-              border: '1px solid rgba(16, 185, 129, 0.4)',
-              color: '#34d399',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontWeight: 600
-            }}
-          >
-            <Sparkles size={16} color="#10b981" />
-            <span>✨ Gemini Vision AI Active</span>
-          </div>
         </div>
 
         <div>
