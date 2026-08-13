@@ -603,7 +603,7 @@ export default function App() {
             const base64Data = reader.result.split(',')[1];
             const textResponse = await callGeminiApi(
               'Analyze this livestock lesion photo. Identify species, disease name (Scientific & Hindi), confidence percentage (85-99%), risk score (CRITICAL / MODERATE / LOW RISK), clinical action, and vet assistance needed. Return ONLY a valid JSON object with keys: species, disease, score, confidence, action, vetNeeded.',
-              { mime_type: file.type || 'image/jpeg', data: base64Data }
+              { mime_type: mainFile.type || 'image/jpeg', data: base64Data }
             );
 
             if (textResponse) {
@@ -612,7 +612,7 @@ export default function App() {
                 const parsed = JSON.parse(cleanJsonMatch[0]);
                 parsed.image = imageUrl;
                 setLivestockResult(parsed);
-                setUploadedLivestockData({ image: imageUrl, fileName: file.name, result: parsed });
+                setUploadedLivestockData({ image: imageUrl, fileName: mainFile.name, result: parsed });
                 setLivestockAnalyzing(false);
                 confetti({ particleCount: 50, spread: 70, origin: { y: 0.7 } });
                 return;
@@ -621,7 +621,7 @@ export default function App() {
           } catch (err) {
             console.error('Gemini Livestock Vision Error:', err);
           }
-          runDynamicLivestockVision(file, imageUrl);
+          runDynamicLivestockVision(mainFile, imageUrl);
         };
         return;
       } catch (err) {
@@ -629,7 +629,7 @@ export default function App() {
       }
     }
 
-    runDynamicLivestockVision(file, imageUrl);
+    runDynamicLivestockVision(mainFile, imageUrl);
   };
 
   const runDynamicLivestockVision = (file, imageUrl) => {
