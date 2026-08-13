@@ -2164,6 +2164,7 @@ export default function App() {
       )}
 
       {/* Dedicated Container for A4 Single-Page PDF Printing */}
+      <div id="printable-report">
         {/* Official Letterhead */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #059669', paddingBottom: '12px', marginBottom: '16px' }}>
           <div>
@@ -2248,6 +2249,7 @@ export default function App() {
             <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1e293b' }}>Authorized Vet / Agronomist Seal</div>
           </div>
         </div>
+      </div>
 
       {/* Live WebRTC Camera Stream Modal (Laptop Webcam & Mobile Camera Window) */}
       {showCameraModal && (
