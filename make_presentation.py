@@ -12,13 +12,15 @@ def build_presentation():
     prs.slide_width = Inches(13.333)
     prs.slide_height = Inches(7.5)
     
-    # Theme Colors
-    BG_DARK = RGBColor(11, 20, 38)        # #0b1426
-    PANEL_DARK = RGBColor(17, 28, 52)     # #111c34
-    ACCENT_EMERALD = RGBColor(16, 185, 129) # #10b981
-    ACCENT_TEAL = RGBColor(52, 211, 153)   # #34d399
-    TEXT_LIGHT = RGBColor(243, 244, 246)  # #f3f4f6
-    TEXT_MUTED = RGBColor(156, 163, 175)  # #9ca3af
+    # Premium Light Aesthetic Palette
+    BG_LIGHT = RGBColor(248, 250, 252)       # #f8fafc Clean Soft Canvas
+    PANEL_CARD = RGBColor(240, 253, 244)     # #f0fdf4 Light Mint Panel
+    BORDER_EMERALD = RGBColor(167, 243, 208) # #a7f3d0 Soft Emerald Border
+    PRIMARY_EMERALD = RGBColor(6, 95, 70)    # #065f46 Deep Emerald Headings
+    ACCENT_TEAL = RGBColor(13, 148, 136)     # #0d9488 Vibrant Teal Subtitles
+    TAG_GREEN = RGBColor(4, 120, 87)         # #047857 Dark Mint Badge
+    TEXT_MAIN = RGBColor(30, 41, 59)          # #1e293b Slate Navy Text
+    TEXT_MUTED = RGBColor(100, 116, 139)     # #64748b Muted Slate Footer
     WHITE = RGBColor(255, 255, 255)
     
     blank_layout = prs.slide_layouts[6]
@@ -112,7 +114,7 @@ def build_presentation():
             "bullets": [
                 "Medical Triage Precision: Clinical diagnostic workflows applied directly to animal & crop pathology.",
                 "Zero False-Negative Goal: Minimizes diagnostic errors in critical infectious outbreaks.",
-                "Rural-First UX Design: High-contrast dark mode, large touch targets, and low-bandwidth 2G mode support."
+                "Rural-First UX Design: High-contrast responsive design, large touch targets, and low-bandwidth 2G mode support."
             ],
             "image": img_ledger
         },
@@ -157,32 +159,38 @@ def build_presentation():
     for data in slides_data:
         slide = prs.slides.add_slide(blank_layout)
         
-        # Background shape
+        # Background shape - Soft Pristine Canvas
         bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, Inches(13.333), Inches(7.5))
         bg.fill.solid()
-        bg.fill.fore_color.rgb = BG_DARK
+        bg.fill.fore_color.rgb = BG_LIGHT
         bg.line.fill.background()
         
+        # Top Accent Decorative Bar
+        top_bar = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.8), Inches(0.4), Inches(11.733), Inches(0.06))
+        top_bar.fill.solid()
+        top_bar.fill.fore_color.rgb = TAG_GREEN
+        top_bar.line.fill.background()
+
         # Top Tag Badge
-        tag_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.5), Inches(11.7), Inches(0.4))
+        tag_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.55), Inches(11.7), Inches(0.35))
         tf_tag = tag_box.text_frame
         p_tag = tf_tag.paragraphs[0]
-        p_tag.text = f"SLIDE {data['slide_num']} | {data['tag']}"
+        p_tag.text = f"SLIDE {data['slide_num']}  |  {data['tag']}"
         p_tag.font.size = Pt(11)
         p_tag.font.bold = True
-        p_tag.font.color.rgb = ACCENT_EMERALD
+        p_tag.font.color.rgb = TAG_GREEN
         
-        # Main Title
-        title_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.85), Inches(11.7), Inches(0.8))
+        # Main Title (Deep Emerald)
+        title_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.9), Inches(11.7), Inches(0.75))
         tf_title = title_box.text_frame
         p_title = tf_title.paragraphs[0]
         p_title.text = data['title']
         p_title.font.size = Pt(26)
         p_title.font.bold = True
-        p_title.font.color.rgb = WHITE
+        p_title.font.color.rgb = PRIMARY_EMERALD
         
-        # Subtitle
-        sub_box = slide.shapes.add_textbox(Inches(0.8), Inches(1.5), Inches(11.7), Inches(0.5))
+        # Subtitle (Teal Blue)
+        sub_box = slide.shapes.add_textbox(Inches(0.8), Inches(1.6), Inches(11.7), Inches(0.45))
         tf_sub = sub_box.text_frame
         p_sub = tf_sub.paragraphs[0]
         p_sub.text = data['subtitle']
@@ -191,55 +199,55 @@ def build_presentation():
         p_sub.font.color.rgb = ACCENT_TEAL
         
         has_image = data['image'] and os.path.exists(data['image'])
-        text_width = Inches(5.8) if has_image else Inches(11.7)
+        text_width = Inches(5.8) if has_image else Inches(11.733)
         
-        # Bullets Container Box
-        bullet_panel = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(2.2), text_width, Inches(4.7))
+        # Bullets Panel Card (Soft Mint Background with Emerald Border)
+        bullet_panel = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(2.2), text_width, Inches(4.6))
         bullet_panel.fill.solid()
-        bullet_panel.fill.fore_color.rgb = PANEL_DARK
-        bullet_panel.line.color.rgb = ACCENT_EMERALD
+        bullet_panel.fill.fore_color.rgb = PANEL_CARD
+        bullet_panel.line.color.rgb = BORDER_EMERALD
         bullet_panel.line.width = Pt(1.5)
         
         # Bullet Text
-        tb_bullets = slide.shapes.add_textbox(Inches(1.0), Inches(2.4), text_width - Inches(0.4), Inches(4.3))
+        tb_bullets = slide.shapes.add_textbox(Inches(1.0), Inches(2.4), text_width - Inches(0.4), Inches(4.2))
         tf_b = tb_bullets.text_frame
         tf_b.word_wrap = True
         
         for i, bullet in enumerate(data['bullets']):
             p = tf_b.paragraphs[0] if i == 0 else tf_b.add_paragraph()
-            p.text = f"• {bullet}"
+            p.text = f"✔  {bullet}"
             p.font.size = Pt(14)
-            p.font.color.rgb = TEXT_LIGHT
+            p.font.color.rgb = TEXT_MAIN
             p.space_after = Pt(14)
-            p.line_spacing = 1.2
+            p.line_spacing = 1.25
             
-        # Add App Screenshot if available
+        # Add App Screenshot if available (Clean Framed Shadow Look)
         if has_image:
-            img_left = Inches(6.9)
+            img_left = Inches(6.933)
             img_top = Inches(2.2)
             img_width = Inches(5.6)
-            img_height = Inches(4.7)
+            img_height = Inches(4.6)
             
-            # Screenshot border box
-            img_border = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, img_left - Inches(0.05), img_top - Inches(0.05), img_width + Inches(0.1), img_height + Inches(0.1))
+            # Screenshot Border Frame Card
+            img_border = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, img_left - Inches(0.04), img_top - Inches(0.04), img_width + Inches(0.08), img_height + Inches(0.08))
             img_border.fill.solid()
-            img_border.fill.fore_color.rgb = PANEL_DARK
-            img_border.line.color.rgb = ACCENT_EMERALD
+            img_border.fill.fore_color.rgb = WHITE
+            img_border.line.color.rgb = BORDER_EMERALD
             img_border.line.width = Pt(2)
             
             slide.shapes.add_picture(data['image'], img_left, img_top, width=img_width, height=img_height)
             
         # Footer
-        footer_box = slide.shapes.add_textbox(Inches(0.8), Inches(7.0), Inches(11.7), Inches(0.3))
+        footer_box = slide.shapes.add_textbox(Inches(0.8), Inches(6.95), Inches(11.7), Inches(0.3))
         tf_foot = footer_box.text_frame
         p_foot = tf_foot.paragraphs[0]
-        p_foot.text = "AgriVision AI Platform | SIH 2026 Internal Hackathon | IIT Jodhpur & AIIMS Jodhpur"
+        p_foot.text = "AgriVision AI Platform  •  SIH 2026 Internal Hackathon  •  IIT Jodhpur & AIIMS Jodhpur"
         p_foot.font.size = Pt(10)
         p_foot.font.color.rgb = TEXT_MUTED
 
     output_path = r"d:\NEW CODING PROJECTS\SIH_INTERNAL\AgriVision_AI_SIH2026_Presentation.pptx"
     prs.save(output_path)
-    print(f"SUCCESS: Created PowerPoint presentation at {output_path}")
+    print(f"SUCCESS: Created Light Theme PowerPoint presentation at {output_path}")
 
 if __name__ == "__main__":
     build_presentation()
