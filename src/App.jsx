@@ -42,7 +42,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('crop'); // crop, livestock, logbook, advisory, alerts, pitchdeck, team
   const [language, setLanguage] = useState('hi'); // 'en', 'hi', 'mrw'
   const [lowBandwidth, setLowBandwidth] = useState(false);
-  const [geminiApiKey, setGeminiApiKey] = useState(localStorage.getItem('AGRIVISION_GEMINI_KEY') || '');
+  const [geminiApiKey, setGeminiApiKey] = useState(import.meta.env.VITE_GEMINI_API_KEY || localStorage.getItem('AGRIVISION_GEMINI_KEY') || '');
   const [showApiModal, setShowApiModal] = useState(false);
   const [tempKeyInput, setTempKeyInput] = useState('');
 
