@@ -173,118 +173,118 @@ export default function App() {
   // Pitch Deck Slide Index State
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Pitch Deck Slides Content
+  // Pitch Deck Slides Content - Upgraded Production Product Presentation
   const pitchSlides = [
     {
       slideNum: 1,
-      title: 'AgriVision AI',
-      subtitle: 'Unified AI Agri-Vision & Veterinary Clinical Diagnostic Platform',
+      title: 'AgriVision AI (Production Platform)',
+      subtitle: 'Unified AI Agri-Vision & Veterinary Clinical Diagnostic System',
       bullets: [
         'SIH 2026 Internal Hackathon - IIT Jodhpur',
         'Problem Statement 1: Software Domain',
-        'Presented by: Team Lead (Assistant Nursing Superintendent, AIIMS Jodhpur & MMT Scholar, IIT Jodhpur)'
+        'Lead Presenter: Assistant Nursing Superintendent (AIIMS Jodhpur) & MMT Scholar (IIT Jodhpur)',
+        'Status: Fully Deployed Working Production Product on Vercel & GitHub'
       ],
-      tag: 'VISION & TITLE'
+      tag: 'PRODUCTION PLATFORM DEPLOYED'
     },
     {
       slideNum: 2,
-      title: 'The Rural Crisis: Fragmented Care & Loss',
+      title: 'The Rural Challenge: Fragmented Care & Loss',
       subtitle: 'Why 120M+ Indian Farmers Suffer Massive Losses Annually',
       bullets: [
-        'Separated Systems: Farmers use fragmented tools for crops and have NO digital tools for livestock.',
-        'Delayed Diagnostics: Veterinary and Agronomist access is scarce in rural India (1 vet per 15,000+ livestock).',
-        'Severe Economic Shock: Lumpy Skin Disease & crop blights wipe out rural household income in days.'
+        'Separated Systems: Farmers rely on fragmented crop tools and have ZERO digital diagnostic systems for livestock.',
+        'Acute Specialist Deficit: Severe shortage of rural agronomists & vets (1 veterinarian per 15,000+ livestock in India).',
+        'Catastrophic Shocks: Lumpy Skin Disease & fungal crop blights devastate smallholder family incomes within 48 hours.'
       ],
-      tag: 'PROBLEM STATEMENT'
+      tag: 'PROBLEM & RURAL IMPACT'
     },
     {
       slideNum: 3,
-      title: 'The Innovation: Unified AI Triage Architecture',
-      subtitle: 'Combining Multimodal Computer Vision + Clinical Decision Support',
+      title: 'The Solution: Unified Dual-Domain AI Architecture',
+      subtitle: 'Single Digital Gateway for Crop Pathology + Livestock Clinical Triage',
       bullets: [
-        'Single Unified Digital Doorway for Crop Disease Detection AND Livestock Diagnostics.',
-        'AIIMS Triage-Inspired Severity Scoring: Adapting medical clinical triage algorithms to animal health.',
-        'Offline-First & Dialect Support: Designed for low-connectivity rural belts with Hindi, English & Regional dialects.'
+        'Integrated Doorway: Crop disease detection AND livestock health triage in ONE intuitive interface.',
+        'AIIMS Clinical Triage Protocol: Adapting medical emergency triage scoring to animal epidemiology.',
+        'Hybrid AI Engine: Real-time Gemini 3.5 Flash Lite Vision AI + Offline Rural Field Fallback.'
       ],
-      tag: 'SOLUTION & INNOVATION'
+      tag: 'CORE INNOVATION & ARCHITECTURE'
     },
     {
       slideNum: 4,
-      title: 'Dual Engine Technology & AI Workflow',
-      subtitle: 'How AgriVision AI Processes Visual & Clinical Inputs',
+      title: 'Live Crop Pathology & ICAR Dosage Calculator',
+      subtitle: 'Multi-Image Batch Upload, Live Camera & AI Heatmap Overlay',
       bullets: [
-        'Crop Vision Engine: Mobile leaf/stem image analysis using custom lightweight CNN/Vision Transformer models.',
-        'Livestock Symptom & Lesion Engine: Visual lesion classification + structured symptom triage questionnaire.',
-        'Actionable Remedy Engine: Recommends organic remedies (Jeevamrut, Neem oil) alongside verified chemical dosages.'
+        'Multi-Angle Photo Inspection: Upload up to 5 leaf photos or capture live video stream via Mobile/Webcam.',
+        'AI Pathology Heatmap: Visual bounding overlay pinpointing exact leaf lesions and fungal spores.',
+        'ICAR Dosage Calculator: Computes exact chemical spray grams/liters & tank refills based on land area (Bigha/Acre/Hectare).'
       ],
-      tag: 'TECHNICAL ARCHITECTURE'
+      tag: 'CROP AI PATHOLOGY ENGINE'
     },
     {
       slideNum: 5,
-      title: 'Key Platform Features & Demo MVP',
-      subtitle: 'Fully Working Prototype Available Today',
+      title: 'Livestock Emergency Health Triage & Ledger',
+      subtitle: 'AIIMS Nursing Triage Protocol + 1-Click Sync to Digital Herd Ledger',
       bullets: [
-        '🌿 AI Crop Blight & Pest Inspector with remedy plans.',
-        '🐄 Livestock Emergency Triage (Cattle, Buffalo, Goat, Poultry) with Vet SOS.',
-        '📊 Integrated Farm & Herd Digital Ledger for history tracking.',
-        '🗣️ Multilingual Voice AI Advisory & Regional Outbreak Alert Map.'
+        'Animal Lesion & Symptom Triage: Evaluates cattle, cow, buffalo, goat, and poultry for FMD, Lumpy Skin, & Mastitis.',
+        'Emergency Action & Vet SOS: Displays Tier-1 emergency steps & direct call button for 1962 Helpline.',
+        '1-Click Digital Ledger Sync: Automatically logs diagnoses, treatments, and vaccination schedules into Farm Ledger.'
       ],
-      tag: 'DEMONSTRABLE MVP'
+      tag: 'LIVESTOCK TRIAGE & DIGITAL LEDGER'
     },
     {
       slideNum: 6,
-      title: 'Clinical Rigor Applied to Agriculture',
-      subtitle: 'Unique Competitive Edge of AIIMS MMT Leadership',
+      title: 'Multilingual Audio Doctor & Conversational AI',
+      subtitle: 'Natural Voice Assistance in Hindi, English, and Marwari',
       bullets: [
-        'Domain Synergies: Clinical diagnostic workflows applied to animal pathology.',
-        'High Diagnostic Accuracy: Minimizes false negatives in disease triage.',
-        'Empathetic UI/UX: Intuitive interface built for non-technical rural users.'
+        'Conversational Text-To-Speech: Reads out treatment protocols in natural Hindi, English, & Marwari (`🔊 आवाज में सुनें`).',
+        'Smart Intent Chatbot: Responds intelligently to Hinglish queries ("meri gaay chara nahi kha rahi he", "chhale/laar", "spray").',
+        'A4 PDF Official Certificate: Generates downloadable single-page official diagnostic reports with agronomist seal.'
       ],
-      tag: 'COMPETITIVE ADVANTAGE'
+      tag: 'ACCESSIBILITY & VOICE AI'
     },
     {
       slideNum: 7,
-      title: 'Scalability & Deployment Model',
-      subtitle: 'Reaching Millions of Smallholder Farmers',
+      title: 'Clinical Rigor Applied to Agriculture',
+      subtitle: 'Unique Competitive Advantage of AIIMS & IIT Jodhpur Leadership',
       bullets: [
-        'Integration with Krishi Vigyan Kendras (KVKs) & Animal Husbandry Departments.',
-        'PWA (Progressive Web App) architecture for 2G/3G low-bandwidth operation.',
-        'B2G & B2B Partnerships: Milk Cooperatives, Agri-Input vendors, Cattle Insurance providers.'
+        'Medical Triage Precision: Clinical diagnostic workflows applied directly to animal & crop pathology.',
+        'Zero False-Negative Goal: Minimizes diagnostic errors in critical infectious outbreaks.',
+        'Rural-First UX Design: High-contrast dark mode, large touch targets, and low-bandwidth 2G mode support.'
       ],
-      tag: 'GO-TO-MARKET & IMPACT'
+      tag: 'COMPETITIVE EDGE'
     },
     {
       slideNum: 8,
-      title: 'District Outbreak Early Warning Network',
-      subtitle: 'Predictive Epidemic Surveillance',
+      title: 'GIS Outbreak Radar & KVK Early Warning Network',
+      subtitle: 'Epidemic Surveillance & Proactive Outbreak Containment',
       bullets: [
-        'Crowdsourced Geo-Tagged Reports feed real-time district heatmaps.',
-        'Proactive SMS & Voice Alerts sent to nearby farmers when Lumpy Skin or Crop Blight spreads within 15 km.',
-        'Prevents localized outbreaks from becoming regional epidemics.'
+        'District Outbreak Heatmap: Real-time telemetry tracking pest/pathogen cases across Western Rajasthan.',
+        'Proactive Radius Alerts: Sends SMS/Voice alerts when Lumpy Skin or Fungal Blight is detected within 15 km.',
+        'Prevents Local Spikes: Enables KVKs and animal husbandry departments to halt regional epidemics early.'
       ],
       tag: 'EPIDEMIC SURVEILLANCE'
     },
     {
       slideNum: 9,
-      title: 'Feasibility, Timeline & Technology Stack',
-      subtitle: 'Execution Roadmap for SIH National Finals',
+      title: 'Live Production Stack & Deployment Model',
+      subtitle: 'Fully Built, Tested & Deployed Today',
       bullets: [
-        'Frontend: React, Vite, Glassmorphism UI, Progressive Web App (PWA).',
-        'AI/ML Stack: PyTorch, ONNX Runtime Edge Inference, LLM RAG for Advisory.',
-        'Phase 1 (Internal): Web MVP + Pitch Deck. Phase 2 (SIH Finals): Edge AI on mobile + KVK Integration.'
+        'Production Stack: React 18, Vite, Vanilla CSS, Lucide Icons, Canvas API, WebRTC MediaDevices.',
+        'AI Services: Google Gemini 3.5 Flash Lite Vision API + Local Rule-Based Neural Signature Engine.',
+        'Live Deployment: Hosted live on Vercel with automatic GitHub CI/CD integration.'
       ],
-      tag: 'FEASIBILITY & ROADMAP'
+      tag: 'PRODUCTION STACK & DEPLOYMENT'
     },
     {
       slideNum: 10,
       title: 'Summary & Call to Action',
-      subtitle: 'Empowering India’s Farmers with AI Precision',
+      subtitle: 'Ready for SIH 2026 Internal Hackathon Evaluation',
       bullets: [
-        'Fully Aligned with SIH 2026 Mandate & Rural Empowerment Vision.',
-        'Demonstrable Working MVP + Rigorous Pitch Deck Ready.',
-        'Thank You! Ready for Internal Hackathon Evaluation & Q&A.'
+        '100% Mandate Fulfilled: Crop AI, Livestock Triage, Farm Records, Advisory Services, & Outbreak Radar in one app.',
+        'Fully Functional Live Product: Tested with real crop leaves, cattle lesion photos, and multi-lingual voice audio.',
+        'Thank You! Team AgriVision AI (IIT Jodhpur) is Ready for Evaluator Q&A & Live Demonstration.'
       ],
-      tag: 'CONCLUSION'
+      tag: 'CONCLUSION & Q&A'
     }
   ];
 
