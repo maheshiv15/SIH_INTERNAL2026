@@ -309,7 +309,31 @@ export default function App() {
     return null;
   };
 
-  // Text-To-Speech Audio Assistant Handler (Hindi / English Web Speech API)
+  // Conversational Hindi Agro-Doctor Script Synthesizer
+  const buildCropDoctorAudioScript = (cropRes) => {
+    if (!cropRes) return '';
+    const waterMultiplier = landUnit === 'acre' ? 200 : landUnit === 'hectare' ? 500 : 125;
+    const totalWater = Math.round(landArea * waterMultiplier);
+    const chemGrams = Math.round(totalWater * 2.5);
+    const refills = Math.ceil(totalWater / tankCapacity);
+    const unitLabel = landUnit === 'acre' ? 'एकड़' : landUnit === 'hectare' ? 'हेक्टेयर' : 'बीघा';
+    const chemText = chemGrams >= 1000 ? `${(chemGrams / 1000).toFixed(2)} किलो` : `${chemGrams} ग्राम`;
+
+    if (language === 'hi' || language === 'mrw') {
+      return `नमस्कार किसान भाई! एग्रीविज़न एआई जांच अनुसार आपकी ${cropRes.crop || 'फसल'} में ${cropRes.disease || 'बीमारी'} के लक्षण पाए गए हैं। जैविक उपचार के लिए: ${cropRes.organic}। रासायनिक छिड़काव के लिए: आपके ${landArea} ${unitLabel} खेत हेतु कुल ${totalWater} लीटर पानी में ${chemText} कवकनाशी मिलाकर ${refills} बार पंप रिफिल करके छिड़काव करें। सावधानियों के लिए: ${cropRes.prevention}`;
+    }
+    return `Hello farmer friend! According to AgriVision AI, your ${cropRes.crop} shows signs of ${cropRes.disease}. For organic remedy: ${cropRes.organic}. For chemical spray on your ${landArea} ${landUnit} field, mix ${chemText} fungicide in ${totalWater} liters of water across ${refills} pump refills. Preventive action: ${cropRes.prevention}`;
+  };
+
+  const buildLivestockDoctorAudioScript = (result) => {
+    if (!result) return '';
+    if (language === 'hi' || language === 'mrw') {
+      return `नमस्कार पशुपालक भाई! आपकी ${result.species} की स्वास्थ्य जांच में ${result.disease} का संकेत मिला है। डॉक्टर की सलाह: ${result.action}। आपातकालीन पशु सहायता के लिए 1962 पर संपर्क करें।`;
+    }
+    return `Hello livestock owner! Health assessment for your ${result.species} indicates ${result.disease}. Recommended clinical action: ${result.action}. For emergency helpline, call 1962.`;
+  };
+
+  // Natural Conversational Text-To-Speech Agro-Doctor Engine
   const speakText = (text) => {
     if (!('speechSynthesis' in window)) {
       alert('Speech synthesis is not supported on this browser.');
@@ -320,14 +344,33 @@ export default function App() {
       setIsSpeaking(false);
       return;
     }
-    const cleanText = text.replace(/[*_#]/g, '');
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = language === 'hi' || language === 'mrw' ? 'hi-IN' : 'en-US';
-    utterance.rate = 0.95;
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-    setIsSpeaking(true);
-    window.speechSynthesis.speak(utterance);
+    if (!text) return;
+    window.speechSynthesis.cancel();
+    const cleanText = text.replace(/[*_#@]/g, '');
+    const sentences = cleanText.split(/([।!?\.\n]+)/).filter(s => s.trim().length > 0);
+
+    let queuedCount = 0;
+    sentences.forEach((sentence, index) => {
+      const trimmed = sentence.trim();
+      if (trimmed && !trimmed.match(/^[।!?\.\n]+$/)) {
+        const utterance = new SpeechSynthesisUtterance(trimmed);
+        utterance.lang = language === 'hi' || language === 'mrw' ? 'hi-IN' : 'en-US';
+        utterance.rate = 0.88; // Easy to follow conversational speech rate
+        utterance.pitch = 1.0;
+        
+        if (queuedCount === 0) {
+          utterance.onstart = () => setIsSpeaking(true);
+        }
+        utterance.onend = () => {
+          if (index >= sentences.length - 2) {
+            setIsSpeaking(false);
+          }
+        };
+        utterance.onerror = () => setIsSpeaking(false);
+        window.speechSynthesis.speak(utterance);
+        queuedCount++;
+      }
+    });
   };
 
   // 1-Click WhatsApp Advisory Report Share Handler
@@ -845,7 +888,7 @@ export default function App() {
                         </button>
 
                         <button 
-                          onClick={() => speakText(`${cropResult.disease}. organic remedy: ${cropResult.organic}. treatment: ${cropResult.treatment}`)}
+                          onClick={() => speakText(buildCropDoctorAudioScript(cropResult))}
                           className="btn-secondary"
                           style={{
                             fontSize: '0.78rem',
@@ -1146,7 +1189,7 @@ export default function App() {
                         
                         <div style={{ display: 'flex', gap: '6px' }}>
                           <button 
-                            onClick={() => speakText(`${livestockResult.disease}. ${livestockResult.action}`)}
+                            onClick={() => speakText(buildLivestockDoctorAudioScript(livestockResult))}
                             className="btn-secondary"
                             style={{
                               fontSize: '0.78rem',
@@ -1745,6 +1788,46 @@ export default function App() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Floating Active Audio Playing Soundwave Bar */}
+      {isSpeaking && (
+        <div style={{
+          position: 'fixed',
+          bottom: '80px',
+          right: '24px',
+          zIndex: 9999,
+          background: 'rgba(16, 185, 129, 0.95)',
+          color: '#ffffff',
+          padding: '12px 20px',
+          borderRadius: '30px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          boxShadow: '0 8px 32px rgba(16, 185, 129, 0.4)',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255,255,255,0.3)',
+          fontWeight: 700,
+          fontSize: '0.88rem'
+        }}>
+          <Volume2 size={20} style={{ animation: 'pulse 1s infinite' }} />
+          <span>{language === 'hi' ? '🔊 एआई डॉक्टर सलाह दे रहे हैं...' : '🔊 AI Doctor Spoken Guidance...'}</span>
+          <button 
+            onClick={() => speakText('')}
+            style={{
+              background: 'rgba(0,0,0,0.3)',
+              border: 'none',
+              color: '#ffffff',
+              padding: '4px 10px',
+              borderRadius: '20px',
+              cursor: 'pointer',
+              fontSize: '0.78rem',
+              fontWeight: 700
+            }}
+          >
+            {language === 'hi' ? 'रोकें [||]' : 'Stop'}
+          </button>
         </div>
       )}
 
