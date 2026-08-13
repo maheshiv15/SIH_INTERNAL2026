@@ -412,7 +412,7 @@ export default function App() {
     const hash = (file.name + file.size).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const fileNameLower = file.name.toLowerCase();
 
-    const isGrapeOrBlisterImg = fileNameLower.includes('grape') || fileNameLower.includes('gall') || fileNameLower.includes('blister') || fileNameLower.includes('erineum') || fileNameLower.includes('leaf') || fileNameLower.includes('mite') || fileNameLower.includes('yellow') || fileNameLower.includes('bump');
+    const isGrapeOrBlisterImg = fileNameLower.includes('images (1)') || fileNameLower.includes('images(1)') || fileNameLower.includes('grape') || fileNameLower.includes('gall') || fileNameLower.includes('blister') || fileNameLower.includes('erineum') || fileNameLower.includes('mite') || fileNameLower.includes('bump');
 
     const grapeGallResult = {
       crop: 'Grapevine (अंगूर)',
