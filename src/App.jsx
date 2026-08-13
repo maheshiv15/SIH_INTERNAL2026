@@ -345,8 +345,26 @@ export default function App() {
       return;
     }
     if (!text) return;
-    window.speechSynthesis.cancel();
-    const cleanText = text.replace(/[*_#@]/g, '');
+    let cleanText = text.replace(/[*_#]/g, '');
+    
+    if (language === 'hi' || language === 'mrw') {
+      // Convert ratios like 1:10 to "1 अनुपात 10" so SpeechSynthesis doesn't read it as time ("1 बजकर 10 मिनट")
+      cleanText = cleanText.replace(/(\d+)\s*:\s*(\d+)/g, '$1 अनुपात $2');
+      cleanText = cleanText.replace(/%/g, ' प्रतिशत ');
+      cleanText = cleanText.replace(/@/g, ' की दर से ');
+      cleanText = cleanText.replace(/(\d+)\s*g\/l(?:iter)?/gi, '$1 ग्राम प्रति लीटर');
+      cleanText = cleanText.replace(/(\d+)\s*ml\/l(?:iter)?/gi, '$1 मिलीलीटर प्रति लीटर');
+      cleanText = cleanText.replace(/(\d+)\s*g\b/gi, '$1 ग्राम');
+      cleanText = cleanText.replace(/(\d+)\s*kg\b/gi, '$1 किलो');
+      cleanText = cleanText.replace(/(\d+)\s*L\b/gi, '$1 लीटर');
+      cleanText = cleanText.replace(/\bWP\b/gi, ' घुलनशील पाउडर');
+      cleanText = cleanText.replace(/\bSC\b/gi, ' लिक्विड दवा');
+    } else {
+      cleanText = cleanText.replace(/(\d+)\s*:\s*(\d+)/g, '$1 to $2 ratio');
+      cleanText = cleanText.replace(/%/g, ' percent ');
+      cleanText = cleanText.replace(/@/g, ' at rate of ');
+    }
+
     const sentences = cleanText.split(/([।!?\.\n]+)/).filter(s => s.trim().length > 0);
 
     let queuedCount = 0;
