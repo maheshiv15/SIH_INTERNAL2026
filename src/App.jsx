@@ -2030,112 +2030,30 @@ export default function App() {
             <ChevronRight size={18} />
           </button>
 
-          {/* Bottom Small Subtle AI Settings Button */}
-          <button 
-            onClick={() => {
-              setTempKeyInput(geminiApiKey);
-              setShowApiModal(true);
-            }}
-            className="btn-secondary"
+          {/* Active AI Engine Badge */}
+          <div 
+            className="glass-panel"
             style={{
-              padding: '12px 18px',
-              borderRadius: '14px',
-              fontSize: '0.88rem',
-              border: geminiApiKey.trim() ? '1px solid rgba(16, 185, 129, 0.6)' : '1px solid var(--border-color)',
-              color: geminiApiKey.trim() ? '#34d399' : 'var(--text-muted)'
+              padding: '8px 14px',
+              borderRadius: '10px',
+              fontSize: '0.8rem',
+              border: '1px solid rgba(16, 185, 129, 0.4)',
+              color: '#34d399',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontWeight: 600
             }}
-            title="Configure Gemini 3.5 Flash Lite Model API Key"
           >
-            <Sparkles size={16} color={geminiApiKey.trim() ? '#10b981' : '#9ca3af'} />
-            <span>{geminiApiKey.trim() ? '⚙️ Gemini AI Active' : '⚙️ AI Settings'}</span>
-          </button>
+            <Sparkles size={16} color="#10b981" />
+            <span>✨ Gemini Vision AI Active</span>
+          </div>
         </div>
 
         <div>
           AgriVision AI Platform | Built for SIH 2026 Internal Hackathon | IIT Jodhpur & AIIMS Jodhpur Medical Technology Innovation
         </div>
       </footer>
-
-      {/* Password-Masked Secure AI Settings Modal */}
-      {showApiModal && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(0, 0, 0, 0.75)',
-          backdropFilter: 'blur(8px)',
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: 'center',
-          justify: 'center',
-          padding: '20px'
-        }}>
-          <div className="glass-panel-glow" style={{ maxWidth: '480px', width: '100%', padding: '24px', position: 'relative' }}>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Sparkles size={20} color="#10b981" />
-              <span>Configure Gemini 3.5 Flash Lite Model API Key</span>
-            </h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '16px', lineHeight: 1.5 }}>
-              Your API Key is encrypted locally in browser memory. Key is password-masked so it cannot be copied or viewed on screen.
-            </p>
-
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '6px', color: 'var(--text-muted)' }}>
-                Gemini API Key (Password Masked / Secure)
-              </label>
-              <input 
-                type="password" 
-                placeholder="Paste Gemini API Key here (hidden as ••••••••)"
-                value={tempKeyInput}
-                onChange={e => setTempKeyInput(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  borderRadius: '10px',
-                  background: 'rgba(0,0,0,0.5)',
-                  border: '1px solid var(--border-color)',
-                  color: '#ffffff',
-                  fontSize: '0.95rem',
-                  letterSpacing: '0.1em'
-                }}
-              />
-            </div>
-
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-              {geminiApiKey && (
-                <button 
-                  onClick={() => {
-                    setGeminiApiKey('');
-                    localStorage.removeItem('AGRIVISION_GEMINI_KEY');
-                    setShowApiModal(false);
-                  }}
-                  className="btn-danger"
-                  style={{ fontSize: '0.82rem', padding: '8px 14px' }}
-                >
-                  Disconnect Key
-                </button>
-              )}
-              <button 
-                onClick={() => setShowApiModal(false)}
-                className="btn-secondary"
-                style={{ fontSize: '0.82rem', padding: '8px 14px' }}
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={() => {
-                  setGeminiApiKey(tempKeyInput.trim());
-                  localStorage.setItem('AGRIVISION_GEMINI_KEY', tempKeyInput.trim());
-                  setShowApiModal(false);
-                }}
-                className="btn-primary"
-                style={{ fontSize: '0.82rem', padding: '8px 18px' }}
-              >
-                Save & Connect AI
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Floating Active Audio Playing Soundwave Bar */}
       {isSpeaking && (
