@@ -46,14 +46,16 @@ export default function App() {
   const [showApiModal, setShowApiModal] = useState(false);
   const [tempKeyInput, setTempKeyInput] = useState('');
 
-  // AI Dosage Calculator, Audio Assistant & Real Leaf Upload States
+  // AI Dosage Calculator, Audio Assistant, Camera & Multi-Image States
   const [landArea, setLandArea] = useState(1);
   const [landUnit, setLandUnit] = useState('bigha'); // bigha, acre, hectare
   const [tankCapacity, setTankCapacity] = useState(15); // 15L knapsack vs 500L tractor tank
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [selectedDistrictFilter, setSelectedDistrictFilter] = useState('all');
   const [uploadedLeafData, setUploadedLeafData] = useState(null);
+  const [uploadedCropImages, setUploadedCropImages] = useState([]);
   const [uploadedLivestockData, setUploadedLivestockData] = useState(null);
+  const [uploadedLivestockImages, setUploadedLivestockImages] = useState([]);
   const [showHeatmap, setShowHeatmap] = useState(false);
 
   // Custom SVG Data URLs for reliable plant disease graphics
@@ -409,15 +411,6 @@ export default function App() {
         confidence: (92 + (hash % 70) / 10).toFixed(1),
         severity: 'High',
         treatment: 'Spray Imidacloprid 17.8 SL @ 0.5ml/liter water to control whitefly vector.',
-        organic: 'Spray Neem Seed Kernel Extract (NSKE 5%) @ 50ml/L water.',
-        prevention: 'Remove infected weed hosts around field margins.'
-      },
-      {
-        crop: 'Potato (आलू)',
-        disease: 'Phytophthora Infestans (Late Blight / पछैती झुलसा)',
-        confidence: (91 + (hash % 80) / 10).toFixed(1),
-        severity: 'High',
-        treatment: 'Foliar spray of Cymoxanil 8% + Mancozeb 64% WP @ 2.5g/liter.',
         organic: 'Apply Trichoderma viride seed treatment & foliar spray.',
         prevention: 'Ensure proper hill formation to cover tubers; avoid excess nitrogen.'
       },
@@ -455,13 +448,17 @@ export default function App() {
     return res;
   };
 
-  // Crop Image Upload Handler with Live Gemini AI Vision Engine & Dynamic Offline Engine
+  // Crop Image Upload Handler with Multi-Image & Direct Mobile Camera Engine
   const handleCropImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
 
-    const imageUrl = URL.createObjectURL(file);
+    const mainFile = files[0];
+    const newImageUrls = files.map(f => URL.createObjectURL(f));
+    const imageUrl = newImageUrls[0];
+
     setSelectedCropImage(imageUrl);
+    setUploadedCropImages(newImageUrls);
     setCropAnalyzing(true);
     setCropResult(null);
 
@@ -469,13 +466,13 @@ export default function App() {
     if (geminiApiKey.trim()) {
       try {
         const reader = new FileReader();
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(mainFile);
         reader.onloadend = async () => {
           try {
             const base64Data = reader.result.split(',')[1];
             const textResponse = await callGeminiApi(
               'Analyze this plant leaf image. Identify the crop name, disease name (Scientific & Hindi), confidence percentage (85-99%), severity (Low/Moderate/High), organic biological remedy, chemical spray dosage, and preventive action. Return ONLY a valid JSON object with keys: crop, disease, confidence, severity, organic, treatment, prevention.',
-              { mime_type: file.type || 'image/jpeg', data: base64Data }
+              { mime_type: mainFile.type || 'image/jpeg', data: base64Data }
             );
 
             if (textResponse) {
@@ -484,7 +481,7 @@ export default function App() {
                 const parsed = JSON.parse(cleanJsonMatch[0]);
                 parsed.image = imageUrl;
                 setCropResult(parsed);
-                setUploadedLeafData({ image: imageUrl, fileName: file.name, result: parsed });
+                setUploadedLeafData({ image: imageUrl, fileName: mainFile.name, result: parsed });
                 setCropAnalyzing(false);
                 confetti({ particleCount: 50, spread: 70, origin: { y: 0.7 } });
                 return;
@@ -494,8 +491,8 @@ export default function App() {
             console.error('Gemini Vision Processing Error:', err);
           }
           // Dynamic Fallback
-          const dynamicResult = generateDynamicCropAnalysis(file, imageUrl);
-          runCropAnalysis(dynamicResult, file.name);
+          const dynamicResult = generateDynamicCropAnalysis(mainFile, imageUrl);
+          runCropAnalysis(dynamicResult, mainFile.name);
         };
         return;
       } catch (err) {
@@ -503,9 +500,9 @@ export default function App() {
       }
     }
 
-    // Dynamic Offline Engine (Unique Diagnosis per Image Signature)
-    const dynamicResult = generateDynamicCropAnalysis(file, imageUrl);
-    runCropAnalysis(dynamicResult, file.name);
+    // Dynamic Offline Engine
+    const dynamicResult = generateDynamicCropAnalysis(mainFile, imageUrl);
+    runCropAnalysis(dynamicResult, mainFile.name);
   };
 
   const runCropAnalysis = (preset, fileName = null) => {
@@ -561,12 +558,16 @@ export default function App() {
     }, 1000);
   };
 
-  // Livestock Pathology Image Vision Upload Handler
+  // Livestock Pathology Image Vision Upload Handler (Multi-Image & Camera)
   const handleLivestockImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
 
-    const imageUrl = URL.createObjectURL(file);
+    const mainFile = files[0];
+    const newImageUrls = files.map(f => URL.createObjectURL(f));
+    const imageUrl = newImageUrls[0];
+
+    setUploadedLivestockImages(newImageUrls);
     setLivestockAnalyzing(true);
     setLivestockResult(null);
 
@@ -574,7 +575,7 @@ export default function App() {
     if (geminiApiKey.trim()) {
       try {
         const reader = new FileReader();
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(mainFile);
         reader.onloadend = async () => {
           try {
             const base64Data = reader.result.split(',')[1];
@@ -870,11 +871,17 @@ export default function App() {
                     {language === 'hi' ? 'पौधे की पत्ती की फोटो अपलोड करें और तुरंत बीमारी, जैविक उपचार एवं रासायनिक छिड़काव की सटीक मात्रा प्राप्त करें।' : language === 'mrw' ? 'पत्ती री फोटो अपलोड करो अर बीमारी, देसी इलाज अर दवाई री मात्रा जानो।' : 'Upload or snap a leaf photo to instantly identify plant pathogens, fungal leaf blights, pest infestations, and receive organic & chemical curative protocols.'}
                   </p>
                 </div>
-                <div style={{ display: 'flex', gap: '12px' }}>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                   <label className="btn-primary" style={{ cursor: 'pointer' }}>
                     <Upload size={18} />
-                    <span>{language === 'hi' ? '📷 पत्ती की फोटो अपलोड करें' : language === 'mrw' ? '📷 पत्ती री फोटो अपलोड करो' : 'Upload Leaf Photo'}</span>
-                    <input type="file" accept="image/*" onChange={handleCropImageUpload} style={{ display: 'none' }} />
+                    <span>{language === 'hi' ? '📁 गैलरी (1 या अधिक)' : '📁 Choose Photos'}</span>
+                    <input type="file" accept="image/*" multiple onChange={handleCropImageUpload} style={{ display: 'none' }} />
+                  </label>
+
+                  <label className="btn-secondary" style={{ cursor: 'pointer', border: '1px solid #10b981', color: '#34d399', background: 'rgba(16,185,129,0.1)' }}>
+                    <Camera size={18} color="#10b981" />
+                    <span>{language === 'hi' ? '📷 कैमरा से फोटो खींचें' : '📷 Take Photo'}</span>
+                    <input type="file" accept="image/*" capture="environment" onChange={handleCropImageUpload} style={{ display: 'none' }} />
                   </label>
                 </div>
               </div>
@@ -1048,6 +1055,38 @@ export default function App() {
                       </div>
                     </div>
 
+                    {/* Multi-Photo Thumbnail Strip Gallery for Crop */}
+                    {uploadedCropImages.length > 1 && (
+                      <div style={{ background: 'rgba(0,0,0,0.2)', padding: '10px 14px', borderRadius: '10px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#34d399', marginBottom: '6px' }}>
+                          📸 Multi-Angle AI Scan ({uploadedCropImages.length} Photos Uploaded - Click to Switch View):
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '2px' }}>
+                          {uploadedCropImages.map((imgUrl, idx) => (
+                            <img
+                              key={idx}
+                              src={imgUrl}
+                              alt={`Angle ${idx + 1}`}
+                              onClick={() => {
+                                setSelectedCropImage(imgUrl);
+                                setCropResult(prev => ({ ...prev, image: imgUrl }));
+                              }}
+                              style={{
+                                width: '52px',
+                                height: '52px',
+                                borderRadius: '8px',
+                                objectFit: 'cover',
+                                cursor: 'pointer',
+                                border: cropResult.image === imgUrl ? '2px solid #10b981' : '1px solid rgba(255,255,255,0.2)',
+                                opacity: cropResult.image === imgUrl ? 1 : 0.6,
+                                transition: 'all 0.2s ease'
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Remedy Cards */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                       <div style={{ background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '10px', borderLeft: '4px solid #10b981' }}>
@@ -1217,13 +1256,21 @@ export default function App() {
                   </span>
                 </h3>
 
-                {/* Upload Lesion Photo Button */}
+                {/* Upload Lesion Photo Buttons: Gallery & Direct Mobile Camera */}
                 <div style={{ marginBottom: '16px', background: 'rgba(244, 63, 94, 0.06)', padding: '14px', borderRadius: '12px', border: '1px stroke rgba(244, 63, 94, 0.2)' }}>
-                  <label className="btn-secondary" style={{ cursor: 'pointer', width: '100%', justifyContent: 'center', border: '1px dashed #f43f5e', color: '#fda4af' }}>
-                    <Upload size={16} color="#f43f5e" />
-                    <span>{language === 'hi' ? '📷 पशु बीमारी/त्वचा फोटो अपलोड करें' : '📷 Upload Animal Lesion Photo'}</span>
-                    <input type="file" accept="image/*" onChange={handleLivestockImageUpload} style={{ display: 'none' }} />
-                  </label>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <label className="btn-secondary" style={{ cursor: 'pointer', flex: 1, justifyContent: 'center', border: '1px dashed #f43f5e', color: '#fda4af' }}>
+                      <Upload size={16} color="#f43f5e" />
+                      <span>{language === 'hi' ? '📁 गैलरी फोटो' : '📁 Choose Photos'}</span>
+                      <input type="file" accept="image/*" multiple onChange={handleLivestockImageUpload} style={{ display: 'none' }} />
+                    </label>
+
+                    <label className="btn-secondary" style={{ cursor: 'pointer', flex: 1, justifyContent: 'center', border: '1px solid #f43f5e', color: '#fb7185', background: 'rgba(244,63,94,0.12)' }}>
+                      <Camera size={16} color="#f43f5e" />
+                      <span>{language === 'hi' ? '📷 कैमरा से फोटो खींचें' : '📷 Take Photo'}</span>
+                      <input type="file" accept="image/*" capture="environment" onChange={handleLivestockImageUpload} style={{ display: 'none' }} />
+                    </label>
+                  </div>
                   
                   {uploadedLivestockData && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px', background: 'rgba(0,0,0,0.3)', padding: '8px 12px', borderRadius: '8px' }}>
