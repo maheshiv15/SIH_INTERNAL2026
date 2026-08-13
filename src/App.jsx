@@ -288,12 +288,12 @@ export default function App() {
     }
   ];
 
-  // Gemini API Caller restricted strictly to Gemini 3.5 Flash Lite & Gemini 3.1 Flash Lite models
+  // Gemini API Caller restricted strictly to Gemini Flash Lite / Flash models
   const callGeminiApi = async (promptText, inlineData = null) => {
     if (!geminiApiKey.trim()) return null;
 
-    // Restricted strictly to Gemini 3.5 Flash Lite & Gemini 3.1 Flash Lite models
-    const models = ['gemini-1.5-flash-lite', 'gemini-1.5-flash'];
+    // Supported Gemini Flash Lite / Flash Model Endpoints
+    const models = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-2.0-flash', 'gemini-1.5-flash-lite'];
     for (const model of models) {
       try {
         const parts = [{ text: promptText }];
@@ -310,9 +310,11 @@ export default function App() {
         const data = await res.json();
         if (res.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
           return data.candidates[0].content.parts[0].text;
+        } else {
+          console.warn(`Gemini API Model (${model}) returned non-ok response:`, data);
         }
       } catch (err) {
-        console.warn(`Gemini Flash Lite Model (${model}) fetch failed:`, err);
+        console.warn(`Gemini Flash Model (${model}) fetch failed:`, err);
       }
     }
     return null;
