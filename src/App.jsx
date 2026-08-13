@@ -205,7 +205,7 @@ export default function App() {
       bullets: [
         'Integrated Doorway: Crop disease detection AND livestock health triage in ONE intuitive interface.',
         'AIIMS Clinical Triage Protocol: Adapting medical emergency triage scoring to animal epidemiology.',
-        'Hybrid AI Engine: Real-time Gemini 3.5 Flash Lite Vision AI + Offline Rural Field Fallback.'
+        'Hybrid AI Engine: Real-time Multimodal Neural Vision AI + Offline Rural Field Fallback.'
       ],
       tag: 'CORE INNOVATION & ARCHITECTURE'
     },
@@ -270,7 +270,7 @@ export default function App() {
       subtitle: 'Fully Built, Tested & Deployed Today',
       bullets: [
         'Production Stack: React 18, Vite, Vanilla CSS, Lucide Icons, Canvas API, WebRTC MediaDevices.',
-        'AI Services: Google Gemini 3.5 Flash Lite Vision API + Local Rule-Based Neural Signature Engine.',
+        'AI Services: Multimodal Neural Vision Model API + Local Edge Diagnostics Engine.',
         'Live Deployment: Hosted live on Vercel with automatic GitHub CI/CD integration.'
       ],
       tag: 'PRODUCTION STACK & DEPLOYMENT'
