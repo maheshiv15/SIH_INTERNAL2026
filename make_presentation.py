@@ -40,8 +40,8 @@ def build_presentation():
             "subtitle": "Unified AI Agri-Vision & Veterinary Clinical Diagnostic System",
             "bullets": [
                 "Smart India Hackathon 2026 Candidate - IIT Jodhpur",
-                "Problem Statement 1: Software Domain",
-                "Lead Presenter: Assistant Nursing Superintendent (AIIMS Jodhpur) & MMT Scholar (IIT Jodhpur)",
+                "Team Name: NeoMedtech  |  Problem Statement 1: Software Domain",
+                "Team Lead: MAHESHIV PRAJAPAT (Asst Nursing Superintendent, AIIMS Jodhpur & MMT Scholar, IIT Jodhpur)",
                 "Live Product Status: Fully Deployed Working Product on Vercel & GitHub"
             ],
             "image": img_crop
@@ -108,13 +108,16 @@ def build_presentation():
         },
         {
             "slide_num": 7,
-            "tag": "COMPETITIVE EDGE",
-            "title": "Clinical Rigor Applied to Agriculture",
-            "subtitle": "Unique Competitive Advantage of AIIMS & IIT Jodhpur Leadership",
+            "tag": "TEAM NEOMEDTECH & CLINICAL RIGOR",
+            "title": "Team NeoMedtech: Interdisciplinary Excellence",
+            "subtitle": "IIT Jodhpur MMT Scholars & AIIMS Clinical Expertise",
             "bullets": [
-                "Medical Triage Precision: Clinical diagnostic workflows applied directly to animal & crop pathology.",
-                "Zero False-Negative Goal: Minimizes diagnostic errors in critical infectious outbreaks.",
-                "Rural-First UX Design: High-contrast responsive design, large touch targets, and low-bandwidth 2G mode support."
+                "MAHESHIV PRAJAPAT (Team Lead): Asst Nursing Superintendent (AIIMS Jodhpur) - Clinical Triage Protocols.",
+                "Dr. Eshitaa Panwar (BDS): Clinical Dental & Health Strategy Lead.",
+                "SIDDHANT SHENVI (B.Tech): Software Engineering & AI Pipeline Lead.",
+                "Mrunal Sonawale (B.Pharma): Pharmacological Remedial & Dosage Protocol Specialist.",
+                "KISHORE VIJAYAKUMAR (MedTech): Hardware & Edge Sensor Integration Lead.",
+                "MEGHA (Design): Rural User Experience & Visual Communication Lead."
             ],
             "image": img_ledger
         },
@@ -150,7 +153,7 @@ def build_presentation():
             "bullets": [
                 "100% Mandate Fulfilled: Crop AI, Livestock Triage, Farm Records, Advisory Services, & Outbreak Radar in one app.",
                 "Fully Functional Live Product: Tested with real crop leaves, cattle lesion photos, and multi-lingual voice audio.",
-                "Thank You! Team AgriVision AI (IIT Jodhpur) is Ready for Evaluator Q&A & Live Demonstration."
+                "Thank You! Team NeoMedtech (IIT Jodhpur) is Ready for Evaluator Q&A & Live Demonstration."
             ],
             "image": img_crop
         }
@@ -209,19 +212,19 @@ def build_presentation():
         bullet_panel.line.width = Pt(1.5)
         
         # Bullet Text
-        tb_bullets = slide.shapes.add_textbox(Inches(1.0), Inches(2.4), text_width - Inches(0.4), Inches(4.2))
+        tb_bullets = slide.shapes.add_textbox(Inches(1.0), Inches(2.35), text_width - Inches(0.4), Inches(4.3))
         tf_b = tb_bullets.text_frame
         tf_b.word_wrap = True
         
         for i, bullet in enumerate(data['bullets']):
             p = tf_b.paragraphs[0] if i == 0 else tf_b.add_paragraph()
             p.text = f"✔  {bullet}"
-            p.font.size = Pt(14)
+            p.font.size = Pt(13) if len(data['bullets']) > 4 else Pt(14)
             p.font.color.rgb = TEXT_MAIN
-            p.space_after = Pt(14)
-            p.line_spacing = 1.25
+            p.space_after = Pt(10) if len(data['bullets']) > 4 else Pt(14)
+            p.line_spacing = 1.2
             
-        # Add App Screenshot if available (Clean Framed Shadow Look)
+        # Add App Screenshot if available
         if has_image:
             img_left = Inches(6.933)
             img_top = Inches(2.2)
@@ -241,13 +244,13 @@ def build_presentation():
         footer_box = slide.shapes.add_textbox(Inches(0.8), Inches(6.95), Inches(11.7), Inches(0.3))
         tf_foot = footer_box.text_frame
         p_foot = tf_foot.paragraphs[0]
-        p_foot.text = "AgriVision AI Platform  •  SIH 2026 Internal Hackathon  •  IIT Jodhpur & AIIMS Jodhpur"
+        p_foot.text = "Team NeoMedtech  •  AgriVision AI  •  SIH 2026 Internal Hackathon  •  IIT Jodhpur & AIIMS Jodhpur"
         p_foot.font.size = Pt(10)
         p_foot.font.color.rgb = TEXT_MUTED
 
-    output_path = r"d:\NEW CODING PROJECTS\SIH_INTERNAL\AgriVision_AI_SIH2026_Presentation.pptx"
+    output_path = r"d:\NEW CODING PROJECTS\SIH_INTERNAL\AgriVision_AI_SIH2026_NeoMedtech_Presentation.pptx"
     prs.save(output_path)
-    print(f"SUCCESS: Created Light Theme PowerPoint presentation at {output_path}")
+    print(f"SUCCESS: Created Light Theme PowerPoint presentation with Team NeoMedtech at {output_path}")
 
 if __name__ == "__main__":
     build_presentation()

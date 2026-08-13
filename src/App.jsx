@@ -181,8 +181,8 @@ export default function App() {
       subtitle: 'Unified AI Agri-Vision & Veterinary Clinical Diagnostic System',
       bullets: [
         'SIH 2026 Internal Hackathon - IIT Jodhpur',
-        'Problem Statement 1: Software Domain',
-        'Lead Presenter: Assistant Nursing Superintendent (AIIMS Jodhpur) & MMT Scholar (IIT Jodhpur)',
+        'Team Name: NeoMedtech | Problem Statement 1: Software Domain',
+        'Team Lead: MAHESHIV PRAJAPAT (Asst Nursing Superintendent, AIIMS Jodhpur & MMT Scholar, IIT Jodhpur)',
         'Status: Fully Deployed Working Production Product on Vercel & GitHub'
       ],
       tag: 'PRODUCTION PLATFORM DEPLOYED'
@@ -244,14 +244,17 @@ export default function App() {
     },
     {
       slideNum: 7,
-      title: 'Clinical Rigor Applied to Agriculture',
-      subtitle: 'Unique Competitive Advantage of AIIMS & IIT Jodhpur Leadership',
+      title: 'Team NeoMedtech: Interdisciplinary Excellence',
+      subtitle: 'IIT Jodhpur MMT Scholars & AIIMS Clinical Expertise',
       bullets: [
-        'Medical Triage Precision: Clinical diagnostic workflows applied directly to animal & crop pathology.',
-        'Zero False-Negative Goal: Minimizes diagnostic errors in critical infectious outbreaks.',
-        'Rural-First UX Design: High-contrast dark mode, large touch targets, and low-bandwidth 2G mode support.'
+        'MAHESHIV PRAJAPAT (Team Lead): Asst Nursing Superintendent (AIIMS Jodhpur) - Clinical Triage Protocols.',
+        'Dr. Eshitaa Panwar (BDS): Clinical Dental & Health Strategy Lead.',
+        'SIDDHANT SHENVI (B.Tech): Software Engineering & AI Pipeline Lead.',
+        'Mrunal Sonawale (B.Pharma): Pharmacological Remedial & Dosage Protocol Specialist.',
+        'KISHORE VIJAYAKUMAR (MedTech): Hardware & Edge Sensor Integration Lead.',
+        'MEGHA (Design): Rural User Experience & Visual Communication Lead.'
       ],
-      tag: 'COMPETITIVE EDGE'
+      tag: 'TEAM NEOMEDTECH & COMPETITIVE EDGE'
     },
     {
       slideNum: 8,
@@ -282,7 +285,7 @@ export default function App() {
       bullets: [
         '100% Mandate Fulfilled: Crop AI, Livestock Triage, Farm Records, Advisory Services, & Outbreak Radar in one app.',
         'Fully Functional Live Product: Tested with real crop leaves, cattle lesion photos, and multi-lingual voice audio.',
-        'Thank You! Team AgriVision AI (IIT Jodhpur) is Ready for Evaluator Q&A & Live Demonstration.'
+        'Thank You! Team NeoMedtech (IIT Jodhpur) is Ready for Evaluator Q&A & Live Demonstration.'
       ],
       tag: 'CONCLUSION & Q&A'
     }
