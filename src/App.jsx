@@ -770,7 +770,7 @@ export default function App() {
     setNewLogNote('');
   };
 
-  // Chat Send Handler with Live Gemini AI Integration
+  // Chat Send Handler with Live Gemini AI Integration & Smart Hinglish Advisory Engine
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
@@ -782,7 +782,7 @@ export default function App() {
     // If Gemini API Key is available, invoke live Gemini Chat API
     if (geminiApiKey.trim()) {
       try {
-        const prompt = `You are AgriVision AI, an expert Agronomist and Veterinary Specialist developed by AIIMS Jodhpur and IIT Jodhpur. Provide a helpful, concise answer (2-4 sentences) to this farmer query in ${language === 'hi' ? 'Hindi' : language === 'mrw' ? 'Hindi/Marwari' : 'English'}: ${userText}`;
+        const prompt = `You are AgriVision AI, an expert Agronomist and Veterinary Specialist developed by AIIMS Jodhpur and IIT Jodhpur. The farmer asked: "${userText}". Provide a clear, empathetic, and highly actionable answer (2-4 sentences) in ${language === 'hi' ? 'Hindi or Hinglish' : language === 'mrw' ? 'Hindi/Marwari' : 'English'}. Include specific remedies or dosages where relevant.`;
         const aiText = await callGeminiApi(prompt);
         if (aiText) {
           setChatMessages(prev => [...prev, { sender: 'ai', text: aiText }]);
@@ -793,15 +793,21 @@ export default function App() {
       }
     }
 
-    // Offline Neural Model Advisory Fallback
+    // Smart Offline Hinglish & Devanagari Agro-Vet Intent Advisory Engine
     setTimeout(() => {
       let reply = '';
-      if (userText.toLowerCase().includes('गाय') || userText.toLowerCase().includes('पशु') || userText.toLowerCase().includes('दूध') || userText.toLowerCase().includes('बुखार')) {
-        reply = 'पशु में तेज बुखार और दूध में अचानक भारी गिरावट संक्रमण या लंपी त्वचा रोग का संकेत हो सकता है। पशु का तापमान तुरंत मापें, उसे बाकी झुंड से अलग छायादार स्थान पर रखें, और पैरासिटामोल व प्राथमिक उपचार हेतु निकटतम पशु चिकित्सा अधिकारी या 1962 हेल्पलाइन पर तुरंत संपर्क करें।';
-      } else if (userText.toLowerCase().includes('कीड़ा') || userText.toLowerCase().includes('फसल') || userText.toLowerCase().includes('रोग')) {
-        reply = 'फसल में कीट व बीमारी नियंत्रण के लिए 5ml नीम का तेल प्रति लीटर पानी में मिलाकर शाम के समय छिड़काव करें। यदि बीमारी अधिक है तो कॉपर ऑक्सीक्लोराइड 2.5 ग्राम/लीटर का प्रयोग करें।';
+      const textLower = userText.toLowerCase();
+
+      if (textLower.includes('chara') || textLower.includes('chhara') || textLower.includes('khana') || textLower.includes('kha') || textLower.includes('bhookh') || textLower.includes('चारा') || textLower.includes('खाना') || textLower.includes('भूख')) {
+        reply = 'पशु के चारा न खाने (भूख न लगने) पर सलाह: 1. पशु का मुंह खोलकर जांचें (छाले या झागदार लार तो नहीं)। 2. बॉडी टेम्परेचर मापें (तेज बुखार संक्रमण का संकेत है)। 3. गुड़ + जीरा + अजवाइन का 200ml गुनगुना काढ़ा दें। 4. 24 घंटे में सुधार न होने पर आपातकालीन पशु हेल्पलाइन 1962 पर तुरंत संपर्क करें।';
+      } else if (textLower.includes('kya kar') || textLower.includes('help') || textLower.includes('madad') || textLower.includes('feature') || textLower.includes('क्या कर') || textLower.includes('मदद') || textLower.includes('काम')) {
+        reply = 'नमस्कार! मैं एग्रीविज़न एआई कृषि व पशुधन सलाहकार हूँ। मैं आपकी निम्न क्षेत्रों में सहायता कर सकता हूँ: 1. 🌿 फसल रोग पहचान व स्प्रे मात्रा गणना। 2. 🐄 पशुधन स्वास्थ्य जांच व आपातकालीन ट्राइएज। 3. 📊 डिजिटल फार्म व पशु रिकॉर्ड खाता। 4. 🗣️ बहुभाषी (हिंदी, मारवाड़ी) सलाह व रोग प्रकोप अलर्ट।';
+      } else if (textLower.includes('kida') || textLower.includes('keeda') || textLower.includes('pest') || textLower.includes('blight') || textLower.includes('spray') || textLower.includes('dawai') || textLower.includes('कीड़ा') || textLower.includes('फसल') || textLower.includes('दवाई')) {
+        reply = 'फसल सुरक्षा एवं स्प्रे सलाह: 1. संक्रमित पत्ती की फोटो ऊपर "फसल AI निदान" टैब में अपलोड करें। 2. जैविक सुरक्षा हेतु नीम तेल 5% (5ml/लीटर) का छिड़काव करें। 3. कवक रोग हेतु कॉपर ऑक्सीक्लोराइड 2.5g/लीटर पानी में मिलाकर छिड़कें।';
+      } else if (textLower.includes('gaay') || textLower.includes('cow') || textLower.includes('pashu') || textLower.includes('maveshi') || textLower.includes('गाय') || textLower.includes('पशु') || textLower.includes('दूध') || textLower.includes('बुखार')) {
+        reply = 'पशुधन स्वास्थ्य देखभाल सलाह: 1. दुधारू पशुओं को रोजाना 30-40 ग्राम मिनरल मिक्सचर दें। 2. खुरपका-मुंहपका (FMD) व लंपी टीकाकरण समय पर कराएं। 3. बुखार होने पर पशु को छायादार स्थान पर रखें और पशु चिकित्सक (1962) से परामर्श लें।';
       } else {
-        reply = 'कृषि व पशु स्वास्थ्य विशेषज्ञ सलाह: नियमित संतुलित आहार, स्वच्छ पेयजल और समय पर टीकाकरण सुनिश्चित करें। आपातकालीन पशु चिकित्सा सहायता के लिए 1962 नंबर पर संपर्क करें।';
+        reply = 'एग्रीविज़न एआई कृषि व पशु विशेषज्ञ सलाह: नियमित संतुलित आहार, स्वच्छ पेयजल और समय पर टीकाकरण सुनिश्चित करें। किसी भी आपातकालीन सहायता के लिए 1962 नंबर पर संपर्क करें।';
       }
       setChatMessages(prev => [...prev, { sender: 'ai', text: reply }]);
     }, 400);
