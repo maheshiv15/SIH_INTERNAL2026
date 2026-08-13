@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Sprout,
   Stethoscope,
@@ -57,6 +57,12 @@ export default function App() {
   const [uploadedLivestockData, setUploadedLivestockData] = useState(null);
   const [uploadedLivestockImages, setUploadedLivestockImages] = useState([]);
   const [showHeatmap, setShowHeatmap] = useState(false);
+
+  // Live Camera WebRTC Stream State & Refs
+  const [showCameraModal, setShowCameraModal] = useState(false);
+  const [cameraTargetTab, setCameraTargetTab] = useState('crop');
+  const [cameraStream, setCameraStream] = useState(null);
+  const videoRef = useRef(null);
 
   // Custom SVG Data URLs for reliable plant disease graphics
   const tomatoBlightSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><rect width="100" height="100" rx="12" fill="%231a2e1e"/><path d="M50 12 C30 32 20 62 50 88 C80 62 70 32 50 12 Z" fill="%232e7d32" stroke="%234caf50" stroke-width="2"/><line x1="50" y1="12" x2="50" y2="88" stroke="%231b5e20" stroke-width="2"/><circle cx="42" cy="42" r="8" fill="%234e342e" stroke="%23ff9800" stroke-width="2"/><circle cx="58" cy="60" r="6" fill="%234e342e" stroke="%23ff9800" stroke-width="2"/><circle cx="38" cy="65" r="4" fill="%234e342e" stroke="%23ff9800" stroke-width="1.5"/><circle cx="55" cy="35" r="5" fill="%234e342e" stroke="%23ff9800" stroke-width="1.5"/></svg>`;
@@ -677,6 +683,60 @@ export default function App() {
     alert(language === 'hi' ? '✅ पशु स्वास्थ रिपोर्ट डिजिटल खाते में दर्ज हो गई है!' : '✅ Triage Record Synced to Digital Herd Ledger!');
   };
 
+  // Start Universal Live Camera Stream (Laptop Webcam & Smartphone)
+  const startLiveCamera = async (targetTab = 'crop') => {
+    setCameraTargetTab(targetTab);
+    setShowCameraModal(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+      });
+      setCameraStream(stream);
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      }, 150);
+    } catch (err) {
+      console.error('Camera Stream Access Error:', err);
+      alert(language === 'hi' ? 'कैमरा खोलने की अनुमति नहीं मिली। कृपया ब्राउज़र अनुमति दें।' : 'Camera permission denied. Please allow camera access in browser settings.');
+    }
+  };
+
+  // Stop Live Camera Stream
+  const stopLiveCamera = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      setCameraStream(null);
+    }
+    setShowCameraModal(false);
+  };
+
+  // Capture Live Photo Snapshot from Video Viewport
+  const captureCameraSnapshot = () => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const dataUrl = canvas.toDataURL('image/jpeg');
+
+    fetch(dataUrl)
+      .then(res => res.blob())
+      .then(blob => {
+        const file = new File([blob], `live-camera-${Date.now()}.jpg`, { type: 'image/jpeg' });
+        const mockEvent = { target: { files: [file] } };
+        stopLiveCamera();
+        if (cameraTargetTab === 'crop') {
+          handleCropImageUpload(mockEvent);
+        } else {
+          handleLivestockImageUpload(mockEvent);
+        }
+      });
+  };
+
   // Logbook Add Item
   const handleAddLog = (e) => {
     e.preventDefault();
@@ -878,11 +938,14 @@ export default function App() {
                     <input type="file" accept="image/*" multiple onChange={handleCropImageUpload} style={{ display: 'none' }} />
                   </label>
 
-                  <label className="btn-secondary" style={{ cursor: 'pointer', border: '1px solid #10b981', color: '#34d399', background: 'rgba(16,185,129,0.1)' }}>
+                  <button 
+                    onClick={() => startLiveCamera('crop')}
+                    className="btn-secondary" 
+                    style={{ border: '1px solid #10b981', color: '#34d399', background: 'rgba(16,185,129,0.1)' }}
+                  >
                     <Camera size={18} color="#10b981" />
                     <span>{language === 'hi' ? '📷 कैमरा से फोटो खींचें' : '📷 Take Photo'}</span>
-                    <input type="file" accept="image/*" capture="environment" onChange={handleCropImageUpload} style={{ display: 'none' }} />
-                  </label>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1265,11 +1328,14 @@ export default function App() {
                       <input type="file" accept="image/*" multiple onChange={handleLivestockImageUpload} style={{ display: 'none' }} />
                     </label>
 
-                    <label className="btn-secondary" style={{ cursor: 'pointer', flex: 1, justifyContent: 'center', border: '1px solid #f43f5e', color: '#fb7185', background: 'rgba(244,63,94,0.12)' }}>
+                    <button 
+                      onClick={() => startLiveCamera('livestock')}
+                      className="btn-secondary" 
+                      style={{ flex: 1, justifyContent: 'center', border: '1px solid #f43f5e', color: '#fb7185', background: 'rgba(244,63,94,0.12)' }}
+                    >
                       <Camera size={16} color="#f43f5e" />
                       <span>{language === 'hi' ? '📷 कैमरा से फोटो खींचें' : '📷 Take Photo'}</span>
-                      <input type="file" accept="image/*" capture="environment" onChange={handleLivestockImageUpload} style={{ display: 'none' }} />
-                    </label>
+                    </button>
                   </div>
                   
                   {uploadedLivestockData && (
@@ -2082,7 +2148,6 @@ export default function App() {
       )}
 
       {/* Dedicated Container for A4 Single-Page PDF Printing */}
-      <div id="printable-report">
         {/* Official Letterhead */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #059669', paddingBottom: '12px', marginBottom: '16px' }}>
           <div>
@@ -2167,8 +2232,79 @@ export default function App() {
             <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1e293b' }}>Authorized Vet / Agronomist Seal</div>
           </div>
         </div>
-      </div>
 
+      {/* Live WebRTC Camera Stream Modal (Laptop Webcam & Mobile Camera Window) */}
+      {showCameraModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0, 0, 0, 0.85)',
+          backdropFilter: 'blur(12px)',
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px'
+        }}>
+          <div className="glass-panel-glow" style={{ width: '100%', maxWidth: '580px', padding: '24px', borderRadius: '20px', border: '1px solid rgba(16, 185, 129, 0.4)', position: 'relative' }}>
+            
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Camera size={22} color="#10b981" />
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>
+                  {language === 'hi' ? '📷 लाइव कैमरा फोटो कैप्चर' : '📷 Live Camera Viewport'}
+                </h3>
+              </div>
+              <button 
+                onClick={stopLiveCamera} 
+                className="btn-secondary" 
+                style={{ padding: '6px 12px', fontSize: '0.8rem', border: '1px solid #f43f5e', color: '#f43f5e' }}
+              >
+                ✕ {language === 'hi' ? 'बंद करें' : 'Close'}
+              </button>
+            </div>
+
+            {/* Live Video Viewport with Targeting Reticle */}
+            <div style={{ position: 'relative', width: '100%', height: '320px', background: '#000000', borderRadius: '14px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <video 
+                ref={videoRef} 
+                autoPlay 
+                playsInline 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+              />
+              
+              {/* Targeting Viewfinder Frame */}
+              <div style={{ position: 'absolute', inset: '24px', border: '2px dashed rgba(16, 185, 129, 0.7)', borderRadius: '12px', pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.82rem', fontWeight: 700, background: 'rgba(0,0,0,0.6)', padding: '6px 14px', borderRadius: '20px' }}>
+                  {language === 'hi' ? 'पत्ती या पशु लक्षण को फ्रेम में रखें' : 'Align leaf or lesion photo in frame'}
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', gap: '12px', marginTop: '18px' }}>
+              <button 
+                onClick={captureCameraSnapshot} 
+                className="btn-primary" 
+                style={{ flex: 1, justifyContent: 'center', fontSize: '1rem', padding: '14px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
+              >
+                <Camera size={20} />
+                <span>{language === 'hi' ? '📸 फोटो खींचें (SNAP PHOTO)' : '📸 SNAP PHOTO'}</span>
+              </button>
+
+              <button 
+                onClick={stopLiveCamera} 
+                className="btn-secondary" 
+                style={{ justifyContent: 'center', padding: '14px' }}
+              >
+                <span>{language === 'hi' ? 'रद्द करें' : 'Cancel'}</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 }
