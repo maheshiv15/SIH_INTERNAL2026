@@ -1357,7 +1357,7 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
           {/* Quick Controls */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
             
-            {/* AI Engine Status & Key Modal Trigger */}
+            {/* Test AI Model Connection Trigger */}
             <button 
               onClick={() => {
                 setTempKeyInput(geminiApiKey);
@@ -1366,28 +1366,21 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
               }}
               className="btn-secondary"
               style={{
-                fontSize: '0.78rem',
-                padding: '7px 12px',
-                border: geminiApiKey ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(245, 158, 11, 0.5)',
-                background: geminiApiKey ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.12)',
-                color: geminiApiKey ? '#34d399' : '#fbbf24',
-                fontWeight: 600
+                fontSize: '0.8rem',
+                padding: '8px 14px',
+                borderRadius: '10px',
+                border: '1px solid rgba(16, 185, 129, 0.4)',
+                background: 'rgba(16, 185, 129, 0.1)',
+                color: '#34d399',
+                fontWeight: 600,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
               }}
-              title="Click to configure Gemini 3.5 Flash Lite API Key & verify connectivity"
+              title="Test AI Model Connection & Status"
             >
-              <Key size={14} color={geminiApiKey ? '#10b981' : '#f59e0b'} />
-              <span>{geminiApiKey ? '⚡ Gemini 3.5 Flash Lite Active' : '🔑 Configure AI Key'}</span>
-            </button>
-
-            {/* Low Bandwidth Toggle */}
-            <button 
-              onClick={() => setLowBandwidth(!lowBandwidth)}
-              className="btn-secondary"
-              style={{ fontSize: '0.8rem', padding: '8px 14px' }}
-              title="Toggle Rural Low-Bandwidth Mode"
-            >
-              {lowBandwidth ? <WifiOff size={16} color="#f43f5e" /> : <Wifi size={16} color="#10b981" />}
-              <span>{lowBandwidth ? '2G Rural Mode ON' : 'Online High-Speed'}</span>
+              <Zap size={15} color="#10b981" />
+              <span>{language === 'hi' ? '⚡ AI मॉडल टेस्ट' : language === 'mrw' ? '⚡ AI टेस्ट' : '⚡ Test AI Model Connection'}</span>
             </button>
 
             {/* Language Switcher */}
@@ -1484,7 +1477,7 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                 <div>
                   <div className="badge badge-emerald" style={{ marginBottom: '8px' }}>
-                    {language === 'hi' ? 'कंप्यूटर विज़न मॉडल v2.4 • Gemini 3.5 Flash Lite' : 'Computer Vision Model v2.4 • Gemini 3.5 Flash Lite'}
+                    {language === 'hi' ? 'कंप्यूटर विज़न मॉडल v2.4' : 'Computer Vision Model v2.4'}
                   </div>
                   <h2 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '6px' }}>
                     {language === 'hi' ? 'एकीकृत फसल बीमारी पहचान एवं उपचार इंजन' : language === 'mrw' ? 'फसल बीमारी पहचान अर इलाज इंजन' : 'Unified Crop Disease Identification & Treatment Engine'}
@@ -2215,7 +2208,7 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
                       <span className="badge badge-emerald" style={{ fontSize: '0.68rem', padding: '2px 8px' }}>AIIMS & IITJ Model</span>
                     </div>
                     <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                      Multimodal Plant Pathologist & Veterinary Clinical Specialist • ⚡ Gemini 3.5 Flash Lite
+                      {language === 'hi' ? 'पौधा रोग विशेषज्ञ एवं पशु चिकित्सा क्लीनिकल सहायक' : 'Multimodal Plant Pathologist & Veterinary Clinical Specialist'}
                     </p>
                   </div>
                 </div>
