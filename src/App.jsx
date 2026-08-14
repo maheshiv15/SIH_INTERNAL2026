@@ -392,9 +392,9 @@ export default function App() {
 
   // Live Test Gemini API Connection Helper
   const testGeminiConnection = async (keyToTest) => {
-    const key = (keyToTest !== undefined ? keyToTest : tempKeyInput).trim();
+    const key = (keyToTest !== undefined ? keyToTest : geminiApiKey)?.trim();
     if (!key) {
-      setApiTestStatus({ success: false, message: 'Please enter an API Key to test.' });
+      setApiTestStatus({ success: false, message: 'No API Key configured in system environment variables.' });
       return;
     }
     setApiTestStatus({ loading: true, message: 'Pinging Gemini 3.5 Flash Lite...' });
@@ -428,17 +428,6 @@ export default function App() {
     } catch (err) {
       setApiTestStatus({ success: false, message: `❌ Network Error: ${err.message}` });
     }
-  };
-
-  const handleSaveApiKey = () => {
-    const trimmed = tempKeyInput.trim();
-    setGeminiApiKey(trimmed);
-    if (trimmed) {
-      localStorage.setItem('AGRIVISION_GEMINI_KEY', trimmed);
-    } else {
-      localStorage.removeItem('AGRIVISION_GEMINI_KEY');
-    }
-    setShowApiModal(false);
   };
 
   // Dynamic Multilingual Resolver for Livestock Triage Results
@@ -1360,9 +1349,8 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
             {/* Test AI Model Connection Trigger */}
             <button 
               onClick={() => {
-                setTempKeyInput(geminiApiKey);
-                setApiTestStatus(null);
                 setShowApiModal(true);
+                testGeminiConnection();
               }}
               className="btn-secondary"
               style={{
@@ -1375,12 +1363,13 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
                 fontWeight: 600,
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '6px'
+                gap: '6px',
+                cursor: 'pointer'
               }}
               title="Test AI Model Connection & Status"
             >
               <Zap size={15} color="#10b981" />
-              <span>{language === 'hi' ? '⚡ AI मॉडल टेस्ट' : language === 'mrw' ? '⚡ AI टेस्ट' : '⚡ Test AI Model Connection'}</span>
+              <span>{language === 'hi' ? '⚡ AI मॉडल टेस्ट' : language === 'mrw' ? '⚡ AI टेस्ट' : '⚡ Test AI Connection'}</span>
             </button>
 
             {/* Language Switcher */}
@@ -3047,17 +3036,19 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
           justifyContent: 'center',
           padding: '20px'
         }}>
-          <div className="glass-panel-glow" style={{ width: '100%', maxWidth: '580px', padding: '28px', borderRadius: '20px', border: '1px solid rgba(16, 185, 129, 0.4)', position: 'relative' }}>
+          <div className="glass-panel-glow" style={{ width: '100%', maxWidth: '520px', padding: '28px', borderRadius: '20px', border: '1px solid rgba(16, 185, 129, 0.4)', position: 'relative' }}>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{ background: 'var(--gradient-agro)', padding: '8px', borderRadius: '10px', display: 'flex' }}>
-                  <Key size={20} color="#ffffff" />
+                  <Zap size={20} color="#ffffff" />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Gemini AI Engine Settings</h3>
+                  <h3 style={{ fontSize: '1.15rem', fontWeight: 800 }}>
+                    {language === 'hi' ? 'AI मॉडल कनेक्टिविटी व स्थिति' : language === 'mrw' ? 'AI मॉडल स्थिति जांच' : 'AI Model Health & Diagnostics'}
+                  </h3>
                   <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                    Dual-Tier: 1st <b>Gemini 3.5 Flash Lite</b> → Fallback: <b>Gemini 3.1 Flash Lite</b>
+                    Dual-Tier: <b>Gemini 3.5 Flash Lite</b> → <b>Gemini 3.1 Flash Lite</b>
                   </p>
                 </div>
               </div>
@@ -3072,56 +3063,29 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
 
             {/* Model Architecture Info */}
             <div style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '12px 16px', borderRadius: '12px', marginBottom: '18px', fontSize: '0.82rem', lineHeight: 1.5 }}>
-              <div style={{ fontWeight: 700, color: '#34d399', marginBottom: '4px' }}>⚡ Active Pipeline Configuration</div>
+              <div style={{ fontWeight: 700, color: '#34d399', marginBottom: '4px' }}>⚡ Active Pipeline Architecture</div>
               <div style={{ color: 'var(--text-muted)' }}>
-                1. <b>Primary Model:</b> <code style={{ color: '#10b981' }}>gemini-3.5-flash-lite</code> (Ultra-fast multimodal vision & chat)<br/>
-                2. <b>Automatic Fallback:</b> <code style={{ color: '#10b981' }}>gemini-3.1-flash-lite</code> (High-reliability failover)
+                1. <b>Primary Model:</b> <code style={{ color: '#10b981' }}>gemini-3.5-flash-lite</code> (Multimodal vision & chat)<br/>
+                2. <b>Automatic Fallback:</b> <code style={{ color: '#10b981' }}>gemini-3.1-flash-lite</code> (Failover engine)
               </div>
-            </div>
-
-            {/* Key Input */}
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px', color: 'var(--text-primary)' }}>
-                Google Gemini API Key
-              </label>
-              <input 
-                type="password"
-                value={tempKeyInput}
-                onChange={(e) => setTempKeyInput(e.target.value)}
-                placeholder="Enter AIzaSy... or AQ.Ab... key"
-                style={{
-                  width: '100%',
-                  padding: '12px 14px',
-                  borderRadius: '10px',
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid var(--border-color)',
-                  color: '#ffffff',
-                  fontSize: '0.9rem',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
-              />
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '6px' }}>
-                💡 Key is stored in your browser's local cache. For automatic deployment on Vercel, set <code style={{ color: '#34d399' }}>VITE_GEMINI_API_KEY</code> in Vercel Project Settings → Environment Variables.
-              </p>
             </div>
 
             {/* Live Test Feedback */}
             {apiTestStatus && (
               <div style={{
-                padding: '10px 14px',
-                borderRadius: '10px',
-                marginBottom: '16px',
-                fontSize: '0.82rem',
+                padding: '14px 16px',
+                borderRadius: '12px',
+                marginBottom: '18px',
+                fontSize: '0.88rem',
                 background: apiTestStatus.loading ? 'rgba(59, 130, 246, 0.1)' : apiTestStatus.success ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
                 border: `1px solid ${apiTestStatus.loading ? '#3b82f6' : apiTestStatus.success ? '#10b981' : '#ef4444'}`,
                 color: apiTestStatus.loading ? '#93c5fd' : apiTestStatus.success ? '#34d399' : '#fca5a5',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '10px'
               }}>
-                {apiTestStatus.loading && <RefreshCw size={14} className="spin" />}
-                <span>{apiTestStatus.message}</span>
+                {apiTestStatus.loading && <RefreshCw size={16} className="spin" />}
+                <span style={{ fontWeight: 600 }}>{apiTestStatus.message}</span>
               </div>
             )}
 
@@ -3129,21 +3093,20 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
               <button 
                 onClick={() => testGeminiConnection()}
-                className="btn-secondary"
-                style={{ fontSize: '0.85rem', padding: '10px 16px' }}
+                className="btn-primary"
+                style={{ fontSize: '0.85rem', padding: '10px 18px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
                 disabled={apiTestStatus?.loading}
               >
-                <Zap size={15} color="#f59e0b" />
-                <span>Test Live Connection</span>
+                <RefreshCw size={15} className={apiTestStatus?.loading ? 'spin' : ''} />
+                <span>{language === 'hi' ? 'पुन: टेस्ट करें (Re-test)' : 'Re-test Connection'}</span>
               </button>
 
               <button 
-                onClick={handleSaveApiKey}
-                className="btn-primary"
-                style={{ fontSize: '0.85rem', padding: '10px 20px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
+                onClick={() => setShowApiModal(false)}
+                className="btn-secondary"
+                style={{ fontSize: '0.85rem', padding: '10px 16px' }}
               >
-                <Check size={16} />
-                <span>Save & Activate</span>
+                <span>{language === 'hi' ? 'बंद करें' : 'Done'}</span>
               </button>
             </div>
 
