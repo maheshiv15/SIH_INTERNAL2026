@@ -33,7 +33,15 @@ import {
   FileText,
   Calculator,
   VolumeX,
-  Eye
+  Eye,
+  Key,
+  Image,
+  X,
+  Paperclip,
+  Copy,
+  CheckCheck,
+  Send,
+  RefreshCcw
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -45,6 +53,16 @@ export default function App() {
   const [geminiApiKey, setGeminiApiKey] = useState(import.meta.env.VITE_GEMINI_API_KEY || localStorage.getItem('AGRIVISION_GEMINI_KEY') || '');
   const [showApiModal, setShowApiModal] = useState(false);
   const [tempKeyInput, setTempKeyInput] = useState('');
+  const [apiTestStatus, setApiTestStatus] = useState(null);
+
+  // Chat Image Attachment & Voice States
+  const [chatAttachedImage, setChatAttachedImage] = useState(null); // { file, previewUrl, base64 }
+  const [chatLoading, setChatLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [copiedIndex, setCopiedIndex] = useState(null);
+  const [playingMessageIndex, setPlayingMessageIndex] = useState(null);
+  const chatImageInputRef = useRef(null);
+  const chatEndRef = useRef(null);
 
   // AI Dosage Calculator, Audio Assistant, Camera & Multi-Image States
   const [landArea, setLandArea] = useState(1);
@@ -164,11 +182,58 @@ export default function App() {
   const [newLogType, setNewLogType] = useState('Crop');
   const [newLogNote, setNewLogNote] = useState('');
 
+  // Multilingual Chat Greetings
+  const chatGreetings = {
+    hi: 'नमस्कार! मैं एग्रीविज़न AI कृषि व पशुधन डॉक्टर सलाहकार हूँ। आपकी फसल या पशु स्वास्थ्य से संबंधित प्रश्न पूछें या पत्ती/लक्षण की फोटो अपलोड करें (जैसे: "कपास में कीड़ा लगा है" या "गाय के मुंह में छाले हैं")।',
+    en: 'Hello! I am AgriVision AI, your crop and veterinary clinical specialist developed by AIIMS & IIT Jodhpur. Ask any question or upload a leaf/livestock photo for instant diagnosis.',
+    mrw: 'राम राम सा! म्हें एग्रीविज़न AI थारो खेती अर ढोर (पशु) रो डॉक्टर सलाहकार हूँ। थारी फसल या मवेशी री कोई भी समस्या पूछो या फोटो भेजकर तुरंत जांच करवाओ सा।'
+  };
+
+  // Quick Suggestion Prompts by Language
+  const quickPromptChips = {
+    hi: [
+      { label: '🌿 अंगूर में फफोले / कीट', query: 'अंगूर की पत्ती पर पीले-नारंगी फफोले और धब्बे बन गए हैं, इसका क्या नियंत्रण व उपचार है?' },
+      { label: '🐄 गाय के मुंह में छाले व लार', query: 'मेरी गाय के मुंह में छाले हैं और झागदार लार गिर रही है, क्या आपातकालीन उपाय करें?' },
+      { label: '🌾 गेहूं में पीला रतुआ का स्प्रे', query: 'गेहूं की फसल में पीला रतुआ (Yellow Rust) लग गया है, कौन सा कवकनाशी स्प्रे करें?' },
+      { label: '🍅 टमाटर अगेती झुलसा का उपाय', query: 'टमाटर की पत्तियों पर भूरे छल्लेदार धब्बे हैं, जैविक व रासायनिक उपचार बताएं।' },
+      { label: '🐛 कपास में सुंडी / कीड़ा नियंत्रण', query: 'कपास में कीड़ा और सुंडी का प्रकोप है, छिड़काव की सही मात्रा बताएं।' }
+    ],
+    en: [
+      { label: '🌿 Grapevine Blister Mites', query: 'Grapevine leaves have yellow blister-like galls. How to control it?' },
+      { label: '🐄 Cattle FMD & Salivation', query: 'My cow has mouth blisters and frothy salivation. What emergency triage to follow?' },
+      { label: '🌾 Wheat Yellow Rust Spray', query: 'Wheat plot is infected with yellow rust spores. Recommend fungicide spray.' },
+      { label: '🍅 Tomato Early Blight Control', query: 'Tomato leaves show concentric brown target spots. Suggest organic remedy.' },
+      { label: '🐛 Cotton Pest & Bollworm', query: 'Cotton crop is affected by caterpillars. Provide chemical dosage.' }
+    ],
+    mrw: [
+      { label: '🌿 अंगूर मांय फोड़ा अर कीड़ा', query: 'अंगूर री पत्ती माथे फोड़ा अर पीला धब्बा बण ग्या है, कांई इलाज करां सा?' },
+      { label: '🐄 गाय रे मुंह मांय छाला', query: 'म्हारी गाय रे मुंह मांय छाला है अर झागदार लार पड़ रही है, कांई करां सा?' },
+      { label: '🌾 गेहूं मांय पीळो रतुआ', query: 'गेहूं री फसल मांय पीळो रतुआ लाग ग्यो है, दवाई बतावो सा।' },
+      { label: '🍅 टमाटर झुलसा रो इलाज', query: 'टमाटर री पत्तियां सुक रही है, छाछ रो देसी इलाज बतावो सा।' },
+      { label: '🐛 कपास मांय कीड़ा रो स्प्रे', query: 'कपास मांय कीड़ा लाग ग्या है, नीम तेल रो छिड़काव कित्ता करां सा?' }
+    ]
+  };
+
   // AI Chat Advisory State
   const [chatMessages, setChatMessages] = useState([
-    { sender: 'ai', text: 'नमस्कार! मैं एग्रीविज़न AI सहायक हूँ। आपकी फसल या पशु स्वास्थ्य से संबंधित प्रश्न पूछें (जैसे: "मेरी गाय खाना नहीं खा रही है" या "कपास में कीड़ा लगा है")।' }
+    { sender: 'ai', text: chatGreetings.hi, time: '10:00 AM' }
   ]);
   const [chatInput, setChatInput] = useState('');
+
+  // Sync initial chat greeting when language switcher is toggled
+  useEffect(() => {
+    setChatMessages(prev => {
+      if (prev.length <= 1) {
+        return [{ sender: 'ai', text: chatGreetings[language] || chatGreetings.hi, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }];
+      }
+      return prev;
+    });
+  }, [language]);
+
+  // Auto-scroll chat to latest message
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages, chatLoading]);
 
   // Pitch Deck Slide Index State
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -291,12 +356,13 @@ export default function App() {
     }
   ];
 
-  // Gemini API Caller restricted strictly to Gemini Flash Lite / Flash models
+  // Gemini API Caller restricted strictly to Gemini 3.5 Flash Lite (Primary) and Gemini 3.1 Flash Lite (Fallback)
   const callGeminiApi = async (promptText, inlineData = null) => {
-    if (!geminiApiKey.trim()) return null;
+    const key = geminiApiKey?.trim();
+    if (!key) return null;
 
-    // Supported Gemini Flash Lite / Flash Model Endpoints
-    const models = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-2.0-flash', 'gemini-1.5-flash-lite'];
+    // Supported Models: 1st Gemini 3.5 Flash Lite, Fallback: Gemini 3.1 Flash Lite only
+    const models = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
     for (const model of models) {
       try {
         const parts = [{ text: promptText }];
@@ -304,7 +370,7 @@ export default function App() {
           parts.unshift({ inline_data: inlineData });
         }
 
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiApiKey.trim()}`, {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ contents: [{ parts }] })
@@ -312,15 +378,67 @@ export default function App() {
 
         const data = await res.json();
         if (res.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+          console.log(`[AgriVision AI] Response received successfully from ${model}`);
           return data.candidates[0].content.parts[0].text;
         } else {
-          console.warn(`Gemini API Model (${model}) returned non-ok response:`, data);
+          console.warn(`[AgriVision AI] Model (${model}) non-ok response:`, data);
         }
       } catch (err) {
-        console.warn(`Gemini Flash Model (${model}) fetch failed:`, err);
+        console.warn(`[AgriVision AI] Model (${model}) fetch failed:`, err);
       }
     }
     return null;
+  };
+
+  // Live Test Gemini API Connection Helper
+  const testGeminiConnection = async (keyToTest) => {
+    const key = (keyToTest !== undefined ? keyToTest : tempKeyInput).trim();
+    if (!key) {
+      setApiTestStatus({ success: false, message: 'Please enter an API Key to test.' });
+      return;
+    }
+    setApiTestStatus({ loading: true, message: 'Pinging Gemini 3.5 Flash Lite...' });
+    const startTime = Date.now();
+    try {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${key}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [{ text: 'Respond with OK' }] }] })
+      });
+      const latency = Date.now() - startTime;
+      const data = await res.json();
+      if (res.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+        setApiTestStatus({ success: true, message: `✅ Connected to Gemini 3.5 Flash Lite (${latency}ms latency)!` });
+      } else {
+        // Fallback test to Gemini 3.1 Flash Lite
+        setApiTestStatus({ loading: true, message: 'Testing fallback Gemini 3.1 Flash Lite...' });
+        const res2 = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${key}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: 'Respond with OK' }] }] })
+        });
+        const latency2 = Date.now() - startTime;
+        const data2 = await res2.json();
+        if (res2.ok && data2.candidates?.[0]?.content?.parts?.[0]?.text) {
+          setApiTestStatus({ success: true, message: `✅ Connected to Gemini 3.1 Flash Lite (Fallback) (${latency2}ms latency)!` });
+        } else {
+          setApiTestStatus({ success: false, message: `❌ Connection failed: ${data.error?.message || data2.error?.message || 'Invalid API Key or quota error'}` });
+        }
+      }
+    } catch (err) {
+      setApiTestStatus({ success: false, message: `❌ Network Error: ${err.message}` });
+    }
+  };
+
+  const handleSaveApiKey = () => {
+    const trimmed = tempKeyInput.trim();
+    setGeminiApiKey(trimmed);
+    if (trimmed) {
+      localStorage.setItem('AGRIVISION_GEMINI_KEY', trimmed);
+    } else {
+      localStorage.removeItem('AGRIVISION_GEMINI_KEY');
+    }
+    setShowApiModal(false);
   };
 
   // Conversational Hindi Agro-Doctor Script Synthesizer
@@ -348,21 +466,25 @@ export default function App() {
   };
 
   // Natural Conversational Text-To-Speech Agro-Doctor Engine
-  const speakText = (text) => {
+  const speakText = (text, msgIdx = null) => {
     if (!('speechSynthesis' in window)) {
       alert('Speech synthesis is not supported on this browser.');
       return;
     }
-    if (isSpeaking) {
+    if (isSpeaking && (playingMessageIndex === msgIdx || msgIdx === null)) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
+      setPlayingMessageIndex(null);
       return;
     }
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+    setPlayingMessageIndex(null);
+
     if (!text) return;
     let cleanText = text.replace(/[*_#]/g, '');
     
     if (language === 'hi' || language === 'mrw') {
-      // Convert ratios like 1:10 to "1 अनुपात 10" so SpeechSynthesis doesn't read it as time ("1 बजकर 10 मिनट")
       cleanText = cleanText.replace(/(\d+)\s*:\s*(\d+)/g, '$1 अनुपात $2');
       cleanText = cleanText.replace(/%/g, ' प्रतिशत ');
       cleanText = cleanText.replace(/@/g, ' की दर से ');
@@ -387,18 +509,25 @@ export default function App() {
       if (trimmed && !trimmed.match(/^[।!?\.\n]+$/)) {
         const utterance = new SpeechSynthesisUtterance(trimmed);
         utterance.lang = language === 'hi' || language === 'mrw' ? 'hi-IN' : 'en-US';
-        utterance.rate = 0.88; // Easy to follow conversational speech rate
+        utterance.rate = 0.88;
         utterance.pitch = 1.0;
         
         if (queuedCount === 0) {
-          utterance.onstart = () => setIsSpeaking(true);
+          utterance.onstart = () => {
+            setIsSpeaking(true);
+            setPlayingMessageIndex(msgIdx);
+          };
         }
         utterance.onend = () => {
           if (index >= sentences.length - 2) {
             setIsSpeaking(false);
+            setPlayingMessageIndex(null);
           }
         };
-        utterance.onerror = () => setIsSpeaking(false);
+        utterance.onerror = () => {
+          setIsSpeaking(false);
+          setPlayingMessageIndex(null);
+        };
         window.speechSynthesis.speak(utterance);
         queuedCount++;
       }
@@ -750,7 +879,14 @@ export default function App() {
         const file = new File([blob], `live-camera-${Date.now()}.jpg`, { type: 'image/jpeg' });
         const mockEvent = { target: { files: [file] } };
         stopLiveCamera();
-        if (cameraTargetTab === 'crop') {
+        if (cameraTargetTab === 'chat') {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const base64 = reader.result.split(',')[1];
+            setChatAttachedImage({ file, previewUrl: dataUrl, base64 });
+          };
+          reader.readAsDataURL(file);
+        } else if (cameraTargetTab === 'crop') {
           handleCropImageUpload(mockEvent);
         } else {
           handleLivestockImageUpload(mockEvent);
@@ -775,22 +911,175 @@ export default function App() {
     setNewLogNote('');
   };
 
-  // Chat Send Handler with Live Gemini AI Integration & Smart Hinglish Advisory Engine
+  // Chat Image Selection Handler
+  const handleChatImageSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result.split(',')[1];
+      const previewUrl = URL.createObjectURL(file);
+      setChatAttachedImage({ file, previewUrl, base64 });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeChatImage = () => {
+    setChatAttachedImage(null);
+    if (chatImageInputRef.current) {
+      chatImageInputRef.current.value = '';
+    }
+  };
+
+  // Web Speech Recognition Voice Input for Chat
+  const startVoiceInput = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Voice recognition is not supported in this browser. Please use Chrome or Edge.');
+      return;
+    }
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = language === 'hi' ? 'hi-IN' : language === 'mrw' ? 'hi-IN' : 'en-IN';
+      recognition.interimResults = false;
+      recognition.onstart = () => setIsListening(true);
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setChatInput(prev => (prev ? prev + ' ' + transcript : transcript));
+        setIsListening(false);
+      };
+      recognition.onerror = () => setIsListening(false);
+      recognition.onend = () => setIsListening(false);
+      recognition.start();
+    } catch (err) {
+      console.error('Speech recognition error:', err);
+      setIsListening(false);
+    }
+  };
+
+  // Chat Copy Advice to Clipboard
+  const handleCopyAdvice = (text, index) => {
+    navigator.clipboard.writeText(text);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
+  // Reset & Clear Chat Session
+  const handleClearChat = () => {
+    setChatMessages([
+      { 
+        sender: 'ai', 
+        text: chatGreetings[language] || chatGreetings.hi, 
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+      }
+    ]);
+    setChatAttachedImage(null);
+  };
+
+  // Quick Prompt Selection
+  const handleSelectQuickPrompt = (promptQuery) => {
+    setChatInput(promptQuery);
+  };
+
+  // Render Rich Formatted AI Response with Badges & Alerts
+  const renderFormattedAiText = (text) => {
+    if (!text) return null;
+    const lines = text.split('\n').filter(l => l.trim().length > 0);
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {lines.map((line, lIdx) => {
+          const isAlert = line.includes('🚨') || line.includes('Emergency') || line.includes('आपातकालीन');
+          
+          // Parse bold parts **bold**
+          const parts = line.split(/(\*\*[^*]+\*\*)/g);
+          const formattedParts = parts.map((part, pIdx) => {
+            if (part.startsWith('**') && part.endsWith('**')) {
+              return (
+                <span key={pIdx} style={{ color: '#38bdf8', fontWeight: 700, background: 'rgba(56, 189, 248, 0.1)', padding: '1px 6px', borderRadius: '4px' }}>
+                  {part.slice(2, -2)}
+                </span>
+              );
+            }
+            return part;
+          });
+
+          if (isAlert) {
+            return (
+              <div key={lIdx} style={{
+                background: 'rgba(239, 68, 68, 0.12)',
+                borderLeft: '4px solid #ef4444',
+                padding: '10px 14px',
+                borderRadius: '8px',
+                color: '#fca5a5',
+                fontSize: '0.92rem',
+                fontWeight: 600,
+                lineHeight: 1.5
+              }}>
+                {formattedParts}
+              </div>
+            );
+          }
+
+          return (
+            <p key={lIdx} style={{ margin: 0, lineHeight: 1.6, color: '#f1f5f9' }}>
+              {formattedParts}
+            </p>
+          );
+        })}
+      </div>
+    );
+  };
+
+  // Chat Send Handler with Live Gemini AI Integration & Strict Language (Hindi / Marwadi / English) Engine
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!chatInput.trim()) return;
+    if (!chatInput.trim() && !chatAttachedImage) return;
 
-    const userText = chatInput;
-    setChatMessages(prev => [...prev, { sender: 'user', text: userText }]);
+    const userText = chatInput.trim();
+    const attachedImg = chatAttachedImage;
+    const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const newMsg = {
+      sender: 'user',
+      text: userText || (attachedImg ? (language === 'hi' ? '📷 फोटो संलग्न की गई' : language === 'mrw' ? '📷 फोटो भेजी सा' : '📷 Attached Photo') : ''),
+      image: attachedImg ? attachedImg.previewUrl : null,
+      time: currentTime
+    };
+
+    setChatMessages(prev => [...prev, newMsg]);
     setChatInput('');
+    setChatAttachedImage(null);
+    if (chatImageInputRef.current) chatImageInputRef.current.value = '';
+    setChatLoading(true);
 
-    // If Gemini API Key is available, invoke live Gemini Chat API
+    // If Gemini API Key is available, invoke live Gemini Chat/Vision API
     if (geminiApiKey.trim()) {
       try {
-        const prompt = `You are AgriVision AI, an expert Agronomist and Veterinary Specialist developed by AIIMS Jodhpur and IIT Jodhpur. The farmer asked: "${userText}". Provide a clear, empathetic, and highly actionable answer (2-4 sentences) in ${language === 'hi' ? 'Hindi or Hinglish' : language === 'mrw' ? 'Hindi/Marwari' : 'English'}. Include specific remedies or dosages where relevant.`;
-        const aiText = await callGeminiApi(prompt);
+        let languageInstruction = '';
+        if (language === 'hi') {
+          languageInstruction = 'CRITICAL REQUIREMENT: You MUST answer ONLY in pure Hindi written in Devanagari script (देवनागरी हिंदी). Do NOT use English alphabets or Hinglish (no Latin script). Keep the tone polite, supportive (किसान मित्र), and clear with specific remedies and dosages.';
+        } else if (language === 'mrw') {
+          languageInstruction = 'CRITICAL REQUIREMENT: You MUST answer in authentic Marwari / Rajasthani language (मारवाड़ी बोली) using Devanagari script (e.g. use words like "राम राम सा", "खम्मा घणी", "म्हारो सुझाव है", "पाणी", "दवाई", "गांत", "ढाणी", "रेवड़"). Provide clear agricultural and veterinary remedies.';
+        } else {
+          languageInstruction = 'CRITICAL REQUIREMENT: You MUST answer ONLY in clear, professional English. Include actionable agricultural and veterinary recommendations with specific dosages.';
+        }
+
+        const prompt = `You are AgriVision AI, an expert Agronomist and Veterinary Clinical Specialist developed by AIIMS Jodhpur and IIT Jodhpur.
+The farmer asked: "${userText || 'Please analyze this attached crop or livestock photo and tell me what disease or issue is present and what treatment to take.'}".
+${attachedImg ? 'A photo of the leaf or animal is attached. Inspect the visual symptoms, color variations, lesions, spots, or deformities carefully and provide diagnostic insights.' : ''}
+
+${languageInstruction}
+Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agricultural response with specific remedies or dosages where relevant.`;
+
+        const inlineData = attachedImg ? { mime_type: attachedImg.file.type || 'image/jpeg', data: attachedImg.base64 } : null;
+        const aiText = await callGeminiApi(prompt, inlineData);
         if (aiText) {
-          setChatMessages(prev => [...prev, { sender: 'ai', text: aiText }]);
+          setChatMessages(prev => [...prev, { 
+            sender: 'ai', 
+            text: aiText,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+          }]);
+          setChatLoading(false);
           return;
         }
       } catch (err) {
@@ -798,29 +1087,62 @@ export default function App() {
       }
     }
 
-    // Smart Offline Hinglish & Devanagari Agro-Vet Intent Advisory Engine
+    // Smart Offline Multilingual Fallback Engine
     setTimeout(() => {
       let reply = '';
       const textLower = userText.toLowerCase();
 
-      if (textLower === 'hi' || textLower === 'hello' || textLower === 'hey' || textLower.includes('namaste') || textLower.includes('नमस्ते') || textLower.includes('राम राम')) {
-        reply = 'नमस्कार किसान भाई! मैं आपका एग्रीविज़न AI कृषि व पशुधन डॉक्टर सलाहकार हूँ। आपकी फसल (जैसे: पत्ती पर धब्बे) या पशु (जैसे: भूख न लगना/बुखार) से संबंधित कोई भी सवाल पूछें।';
-      } else if (textLower.includes('chhale') || textLower.includes('chale') || textLower.includes('laar') || textLower.includes('lar') || textLower.includes('jhag') || textLower.includes('foam') || textLower.includes('saliva') || textLower.includes('mouth') || textLower.includes('fmd') || textLower.includes('छाले') || textLower.includes('झाग') || textLower.includes('लार') || textLower.includes('मुंह') || textLower.includes('छाते')) {
-        reply = '🚨 आपातकालीन क्लीनिकल अलर्ट (खुरपका-मुंहपका / FMD संसर्ग संकेत): मुंह में छाले व झागदार लार खुरपका-मुंहपका रोग का मुख्य लक्षण है। 1. पशु को तुरंत बाकी मवेशियों से अलग (Isolate) करें। 2. लाल दवा (1% Potassium Permanganate) के पानी से मुंह व खुर रोजाना धोएं। 3. मुलायम ठंडा दलिया दें। 4. जिला पशु चिकित्सा अधिकारी या 1962 पर तुरंत कॉल करें!';
-      } else if (textLower.includes('lumpy') || textLower.includes('nodule') || textLower.includes('ganth') || textLower.includes('gath') || textLower.includes('गांठ') || textLower.includes('लम्पी') || textLower.includes('त्वचा')) {
-        reply = '🚨 आपातकालीन अलर्ट (लंपी त्वचा रोग / Lumpy Skin Disease): त्वचा पर गांठें लंपी रोग का संकेत हैं। 1. मवेशी को तुरंत बाकी झुंड से अलग करें। 2. नीम व हल्दी का एंटीसेप्टिक लेप लगाएं। 3. मक्खी-मच्छर नियंत्रण हेतु नीम तेल छिड़कें। 4. 1962 हेल्पलाइन पर तुरंत सूचित करें।';
-      } else if (textLower.includes('chara') || textLower.includes('chhara') || textLower.includes('khana') || textLower.includes('kha') || textLower.includes('bhookh') || textLower.includes('चारा') || textLower.includes('खाना') || textLower.includes('भूख')) {
-        reply = 'पशु के चारा न खाने (भूख न लगने) पर सलाह: 1. पशु का मुंह खोलकर जांचें (छाले या झागदार लार तो नहीं)। 2. बॉडी टेम्परेचर मापें (तेज बुखार संक्रमण का संकेत है)। 3. गुड़ + जीरा + अजवाइन का 200ml गुनगुना काढ़ा दें। 4. 24 घंटे में सुधार न होने पर आपातकालीन पशु हेल्पलाइन 1962 पर तुरंत संपर्क करें।';
-      } else if (textLower.includes('kya kar') || textLower.includes('help') || textLower.includes('madad') || textLower.includes('feature') || textLower.includes('क्या कर') || textLower.includes('मदद') || textLower.includes('काम')) {
-        reply = 'नमस्कार! मैं एग्रीविज़न एआई कृषि व पशुधन सलाहकार हूँ। मैं आपकी निम्न क्षेत्रों में सहायता कर सकता हूँ: 1. 🌿 फसल रोग पहचान व स्प्रे मात्रा गणना। 2. 🐄 पशुधन स्वास्थ्य जांच व आपातकालीन ट्राइएज। 3. 📊 डिजिटल फार्म व पशु रिकॉर्ड खाता। 4. 🗣️ बहुभाषी (हिंदी, मारवाड़ी) सलाह व रोग प्रकोप अलर्ट।';
-      } else if (textLower.includes('kida') || textLower.includes('keeda') || textLower.includes('pest') || textLower.includes('blight') || textLower.includes('spray') || textLower.includes('dawai') || textLower.includes('कीड़ा') || textLower.includes('फसल') || textLower.includes('दवाई')) {
-        reply = 'फसल सुरक्षा एवं स्प्रे सलाह: 1. संक्रमित पत्ती की फोटो ऊपर "फसल AI निदान" टैब में अपलोड करें। 2. जैविक सुरक्षा हेतु नीम तेल 5% (5ml/लीटर) का छिड़काव करें। 3. कवक रोग हेतु कॉपर ऑक्सीक्लोराइड 2.5g/लीटर पानी में मिलाकर छिड़कें।';
-      } else if (textLower.includes('gaay') || textLower.includes('cow') || textLower.includes('pashu') || textLower.includes('maveshi') || textLower.includes('गाय') || textLower.includes('पशु') || textLower.includes('दूध') || textLower.includes('बुखार')) {
-        reply = 'पशुधन स्वास्थ्य देखभाल सलाह: 1. दुधारू पशुओं को रोजाना 30-40 ग्राम मिनरल मिक्सचर दें। 2. खुरपका-मुंहपका (FMD) व लंपी टीकाकरण समय पर कराएं। 3. बुखार होने पर पशु को छायादार स्थान पर रखें और पशु चिकित्सक (1962) से परामर्श लें।';
+      if (language === 'en') {
+        if (textLower.includes('hi') || textLower.includes('hello') || textLower.includes('hey')) {
+          reply = 'Hello farmer friend! I am AgriVision AI, your crop and veterinary advisor. How can I help with your crops or livestock today?';
+        } else if (textLower.includes('fmd') || textLower.includes('mouth') || textLower.includes('saliva') || textLower.includes('blister')) {
+          reply = '🚨 Emergency Veterinary Alert (FMD Suspected): Blisters in the mouth and excessive salivation indicate Foot & Mouth Disease. 1. Isolate the animal immediately. 2. Wash lesions with 1% Potassium Permanganate solution. 3. Call 1962 emergency animal helpline.';
+        } else if (textLower.includes('lumpy') || textLower.includes('nodule') || textLower.includes('skin')) {
+          reply = '🚨 Emergency Alert (Lumpy Skin Disease): Skin nodules indicate LSD. 1. Isolate the cattle from the herd. 2. Apply antiseptic turmeric-neem paste. 3. Spray neem oil for fly control. 4. Notify local veterinary officer / 1962.';
+        } else if (textLower.includes('pest') || textLower.includes('worm') || textLower.includes('insect') || textLower.includes('keeda') || textLower.includes('kida')) {
+          reply = 'Crop Pest Protection Advisory: For caterpillars and worms, mix Neem Oil 10,000 ppm (30ml) in 15L water and spray during evening hours. For severe infestation, apply Chlorpyrifos 20% EC (2ml per liter of water).';
+        } else if (textLower.includes('feed') || textLower.includes('food') || textLower.includes('hunger') || textLower.includes('eat') || textLower.includes('milk')) {
+          reply = 'Livestock Feed & Lactation Advisory: Feed 30-40g mineral mixture daily with fresh green fodder. Ensure clean drinking water at all times. If appetite loss exceeds 24h, check temperature for fever.';
+        } else {
+          reply = 'AgriVision AI Advisory: Maintain proper sanitation, timely crop protection, and scheduled livestock vaccinations. For emergency assistance, please call the 1962 helpline.';
+        }
+      } else if (language === 'mrw') {
+        if (textLower.includes('ram') || textLower.includes('khamma') || textLower.includes('namaste') || textLower.includes('hi') || textLower.includes('hello')) {
+          reply = 'राम राम सा किसान भाई! म्हें एग्रीविज़न AI थारो कृषि अर पशु डॉक्टर सलाहकार हूँ। फसल या ढोर (पशु) री कोई भी बीमारी होवे तो बेझिझक पूछो सा।';
+        } else if (textLower.includes('chhale') || textLower.includes('laar') || textLower.includes('mouth') || textLower.includes('छाले') || textLower.includes('झाग') || textLower.includes('लार')) {
+          reply = '🚨 आपातकालीन अलर्ट (खुरपका-मुंहपका रोग): मुंह मांय छाला अर झागदार लार खुरपका-मुंहपका रा लक्षण है। 1. ढोर ने तुरंत बाकि रेवड़ सूं अलग राखो। 2. लाल दवाई रे पाणी सूं मुंह धोवो। 3. 1962 पशु हेल्पलाइन पर तुरंत फोन करो सा!';
+        } else if (textLower.includes('lumpy') || textLower.includes('गांठ') || textLower.includes('लम्पी')) {
+          reply = '🚨 लंपी बीमारी अलर्ट: चमड़ी माथे गांठां लंपी रो लक्षण है। ढोर ने अलग बाड़े मांय बांधो, नीम-हल्दी रो लेप लगावो अर 1962 माथे सूचना देवो सा।';
+        } else if (textLower.includes('kida') || textLower.includes('keeda') || textLower.includes('कीड़ा') || textLower.includes('फसल')) {
+          reply = 'फसल कीड़ा उपचार: 15 लीटर पंप मांय 30ml नीम तेल मिलाकर संझा रे बखत छिड़काव करो। कीड़ा घणा होवे तो क्लोरपायरीफॉस 2ml प्रति लीटर पाणी मांय छिड़को सा।';
+        } else if (textLower.includes('chara') || textLower.includes('चारा') || textLower.includes('खाना') || textLower.includes('दूध')) {
+          reply = 'ढोर रे चारा न खावण माथे सलाह: मुंह खोलर जांचो छाला तो कोनी। गुड़ अर अजवायन रो काढ़ो देवो। 24 घंटां मांय सुधार नी होवे तो 1962 पर कॉल करो सा।';
+        } else {
+          reply = 'एग्रीविज़न AI मारवाड़ी सलाह: ढोरा ने स्वच्छ पाणी, मीणो मिश्रण अर समय पर टीको लगावो सा। आपातकालीन मदद खातर 1962 नंबर पर संपर्क करो।';
+        }
       } else {
-        reply = 'एग्रीविज़न एआई कृषि व पशु विशेषज्ञ सलाह: नियमित संतुलित आहार, स्वच्छ पेयजल और समय पर टीकाकरण सुनिश्चित करें। किसी भी आपातकालीन सहायता के लिए 1962 नंबर पर संपर्क करें।';
+        // Pure Devanagari Hindi
+        if (textLower === 'hi' || textLower === 'hello' || textLower === 'hey' || textLower.includes('namaste') || textLower.includes('नमस्ते') || textLower.includes('राम राम')) {
+          reply = 'नमस्कार किसान भाई! मैं आपका एग्रीविज़न AI कृषि व पशुधन डॉक्टर सलाहकार हूँ। आपकी फसल या पशु संबंधी कोई भी समस्या पूछें।';
+        } else if (textLower.includes('chhale') || textLower.includes('chale') || textLower.includes('laar') || textLower.includes('lar') || textLower.includes('jhag') || textLower.includes('foam') || textLower.includes('saliva') || textLower.includes('mouth') || textLower.includes('fmd') || textLower.includes('छाले') || textLower.includes('झाग') || textLower.includes('लार') || textLower.includes('मुंह') || textLower.includes('छाते')) {
+          reply = '🚨 आपातकालीन क्लीनिकल अलर्ट (खुरपका-मुंहपका / FMD संसर्ग संकेत): मुंह में छाले व झागदार लार खुरपका-मुंहपका रोग का मुख्य लक्षण है। 1. पशु को तुरंत बाकी मवेशियों से अलग करें। 2. लाल दवा (1% पोटेशियम परमैंगनेट) के पानी से मुंह व खुर रोजाना धोएं। 3. 1962 हेल्पलाइन पर तुरंत संपर्क करें!';
+        } else if (textLower.includes('lumpy') || textLower.includes('nodule') || textLower.includes('ganth') || textLower.includes('gath') || textLower.includes('गांठ') || textLower.includes('लम्पी') || textLower.includes('त्वचा')) {
+          reply = '🚨 आपातकालीन अलर्ट (लंपी त्वचा रोग): त्वचा पर गांठें लंपी रोग का संकेत हैं। 1. मवेशी को तुरंत बाकी झुंड से अलग करें। 2. नीम व हल्दी का लेप लगाएं। 3. मक्खी-मच्छर नियंत्रण हेतु नीम तेल छिड़कें। 4. 1962 हेल्पलाइन पर तुरंत सूचित करें।';
+        } else if (textLower.includes('chara') || textLower.includes('chhara') || textLower.includes('khana') || textLower.includes('kha') || textLower.includes('bhookh') || textLower.includes('चारा') || textLower.includes('खाना') || textLower.includes('भूख')) {
+          reply = 'पशु के चारा न खाने पर सलाह: 1. पशु का मुंह खोलकर छाले या लार की जांच करें। 2. शरीर का तापमान मापें। 3. गुड़ + जीरा + अजवाइन का गुनगुना काढ़ा दें। 4. 24 घंटे में सुधार न होने पर आपातकालीन पशु हेल्पलाइन 1962 पर संपर्क करें।';
+        } else if (textLower.includes('kida') || textLower.includes('keeda') || textLower.includes('pest') || textLower.includes('blight') || textLower.includes('spray') || textLower.includes('dawai') || textLower.includes('कीड़ा') || textLower.includes('फसल') || textLower.includes('दवाई')) {
+          reply = 'फसल कीट सुरक्षा सलाह: फसल में कीड़ा नियंत्रण हेतु 15 लीटर की टंकी में 30ml नीम का तेल (10000 ppm) मिलाकर शाम के समय छिड़काव करें। यदि कीड़ों का प्रकोप अधिक है तो क्लोरपायरीफॉस 20% EC (2ml प्रति लीटर पानी) का प्रयोग करें।';
+        } else {
+          reply = 'एग्रीविज़न AI कृषि व पशु विशेषज्ञ सलाह: नियमित संतुलित आहार, स्वच्छ पेयजल और समय पर टीकाकरण सुनिश्चित करें। किसी भी आपातकालीन सहायता के लिए 1962 नंबर पर संपर्क करें।';
+        }
       }
-      setChatMessages(prev => [...prev, { sender: 'ai', text: reply }]);
+
+      setChatMessages(prev => [...prev, { 
+        sender: 'ai', 
+        text: reply,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+      }]);
+      setChatLoading(false);
     }, 400);
   };
 
@@ -848,8 +1170,30 @@ export default function App() {
           </div>
 
           {/* Quick Controls */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
             
+            {/* AI Engine Status & Key Modal Trigger */}
+            <button 
+              onClick={() => {
+                setTempKeyInput(geminiApiKey);
+                setApiTestStatus(null);
+                setShowApiModal(true);
+              }}
+              className="btn-secondary"
+              style={{
+                fontSize: '0.78rem',
+                padding: '7px 12px',
+                border: geminiApiKey ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(245, 158, 11, 0.5)',
+                background: geminiApiKey ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.12)',
+                color: geminiApiKey ? '#34d399' : '#fbbf24',
+                fontWeight: 600
+              }}
+              title="Click to configure Gemini 3.5 Flash Lite API Key & verify connectivity"
+            >
+              <Key size={14} color={geminiApiKey ? '#10b981' : '#f59e0b'} />
+              <span>{geminiApiKey ? '⚡ Gemini 3.5 Flash Lite Active' : '🔑 Configure AI Key'}</span>
+            </button>
+
             {/* Low Bandwidth Toggle */}
             <button 
               onClick={() => setLowBandwidth(!lowBandwidth)}
@@ -889,7 +1233,7 @@ export default function App() {
             {/* AIIMS & IITJ Innovation Badge */}
             <div className="glass-panel" style={{ padding: '6px 14px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', border: '1px solid rgba(16, 185, 129, 0.4)', color: '#34d399', fontWeight: 600 }}>
               <Stethoscope size={16} color="#10b981" />
-              <span>🩺 AIIMS Jodhpur & IITJ MMT Innovation</span>
+              <span>🩺 AIIMS Jodhpur & IITJ Innovation</span>
             </div>
 
           </div>
@@ -1708,97 +2052,409 @@ export default function App() {
         {/* TAB 4: MULTILINGUAL AI CHAT & VOICE ADVISORY */}
         {activeTab === 'advisory' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', height: '600px' }}>
+            
+            {/* Main AI Chat & Clinical Advisory Panel */}
+            <div className="glass-panel-glow" style={{ padding: '0', display: 'flex', flexDirection: 'column', height: '680px', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(16, 185, 129, 0.35)', background: 'linear-gradient(180deg, rgba(17, 24, 39, 0.95) 0%, rgba(10, 15, 29, 0.98) 100%)' }}>
               
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px', marginBottom: '16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ background: 'var(--gradient-agro)', padding: '8px', borderRadius: '10px' }}>
-                    <MessageSquare size={20} color="#fff" />
+              {/* Doctor Status Bar & Top Header */}
+              <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', background: 'rgba(255,255,255,0.02)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={{ position: 'relative' }}>
+                    <div style={{ background: 'var(--gradient-agro)', width: '44px', height: '44px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)' }}>
+                      <Stethoscope size={22} color="#ffffff" />
+                    </div>
+                    <span style={{ position: 'absolute', bottom: '-2px', right: '-2px', width: '12px', height: '12px', background: '#10b981', borderRadius: '50%', border: '2px solid #0a0f1d' }} />
                   </div>
                   <div>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Multilingual AI Agri-Vet Voice & Text Advisory</h3>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Supports Hindi, English, and Marwari dialect queries</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <h3 style={{ fontSize: '1.15rem', fontWeight: 800 }}>Dr. AgriVision AI</h3>
+                      <span className="badge badge-emerald" style={{ fontSize: '0.68rem', padding: '2px 8px' }}>AIIMS & IITJ Model</span>
+                    </div>
+                    <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                      Multimodal Plant Pathologist & Veterinary Clinical Specialist • ⚡ Gemini 3.5 Flash Lite
+                    </p>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button className="btn-secondary" style={{ fontSize: '0.8rem', padding: '6px 12px' }}>
-                    <Volume2 size={16} color="#10b981" />
-                    <span>Voice Input (बोलकर पूछें)</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {/* Clear / New Chat Button */}
+                  <button 
+                    onClick={handleClearChat}
+                    className="btn-secondary"
+                    style={{ fontSize: '0.78rem', padding: '7px 12px', borderRadius: '10px' }}
+                    title="Start New Chat Session (नया चैट शुरू करें)"
+                  >
+                    <RefreshCcw size={14} color="var(--text-muted)" />
+                    <span>{language === 'hi' ? 'नया चैट' : language === 'mrw' ? 'नयी बातचीत' : 'New Chat'}</span>
+                  </button>
+
+                  {/* Speech Recognition Voice Button */}
+                  <button 
+                    onClick={startVoiceInput}
+                    className="btn-secondary" 
+                    style={{
+                      fontSize: '0.78rem',
+                      padding: '7px 14px',
+                      borderRadius: '10px',
+                      border: isListening ? '1px solid #ef4444' : '1px solid rgba(16, 185, 129, 0.4)',
+                      background: isListening ? 'rgba(239, 68, 68, 0.18)' : 'rgba(16, 185, 129, 0.12)',
+                      color: isListening ? '#f87171' : '#34d399',
+                      fontWeight: 600
+                    }}
+                  >
+                    <Volume2 size={15} color={isListening ? '#ef4444' : '#10b981'} className={isListening ? 'spin' : ''} />
+                    <span>{isListening ? (language === 'hi' ? 'सुन रहा हूँ...' : language === 'mrw' ? 'सुण रह्यो हूँ...' : 'Listening...') : (language === 'hi' ? 'बोलकर पूछें' : language === 'mrw' ? 'बोलकर पूछो' : 'Voice Input')}</span>
                   </button>
                 </div>
               </div>
 
-              {/* Chat Message History */}
-              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px', paddingRight: '8px' }}>
-                {chatMessages.map((msg, index) => (
-                  <div 
-                    key={index}
-                    style={{
-                      alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-                      maxWidth: '85%',
-                      background: msg.sender === 'user' ? 'var(--accent-emerald)' : 'rgba(255,255,255,0.06)',
-                      color: msg.sender === 'user' ? '#ffffff' : 'var(--text-main)',
-                      padding: '12px 18px',
-                      borderRadius: '16px',
-                      borderBottomRightRadius: msg.sender === 'user' ? '4px' : '16px',
-                      borderBottomLeftRadius: msg.sender === 'ai' ? '4px' : '16px',
-                      fontSize: '0.92rem',
-                      lineHeight: 1.5,
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-                      position: 'relative'
-                    }}
+              {/* Interactive Quick Prompts Carousel */}
+              <div style={{ padding: '10px 20px', background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', gap: '8px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Sparkles size={13} color="#f59e0b" />
+                  {language === 'hi' ? 'त्वरित प्रश्न:' : language === 'mrw' ? 'तुरंत पूछो:' : 'Quick Prompts:'}
+                </span>
+                {(quickPromptChips[language] || quickPromptChips.hi).map((chip, cIdx) => (
+                  <button 
+                    key={cIdx} 
+                    onClick={() => handleSelectQuickPrompt(chip.query)}
+                    className="prompt-chip"
                   >
-                    {msg.text}
-                    
-                    {/* Audio Listen Button on AI Messages */}
-                    {msg.sender === 'ai' && (
-                      <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                        <button 
-                          onClick={() => speakText(msg.text)}
-                          style={{
-                            background: 'transparent',
-                            border: 'none',
-                            color: '#34d399',
-                            fontSize: '0.75rem',
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}
-                        >
-                          <Volume2 size={14} />
-                          <span>🔊 Listen Audio (आवाज में सुनें)</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                    <span>{chip.label}</span>
+                  </button>
                 ))}
               </div>
 
-              {/* Input Box */}
-              <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-                <input 
-                  type="text" 
-                  placeholder={language === 'hi' ? 'अपनी फसल या पशु संबंधी समस्या लिखें...' : 'Type crop or livestock query...'}
-                  value={chatInput}
-                  onChange={e => setChatInput(e.target.value)}
-                  style={{
-                    flex: 1,
-                    padding: '14px 18px',
-                    borderRadius: '12px',
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid var(--border-color)',
-                    color: 'var(--text-main)',
-                    fontSize: '0.95rem'
-                  }}
-                />
-                <button type="submit" className="btn-primary">
-                  <span>भेजें</span>
-                  <ChevronRight size={18} />
-                </button>
-              </form>
+              {/* Chat Message Scroll Feed */}
+              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '18px', padding: '20px 24px', scrollBehavior: 'smooth' }}>
+                {chatMessages.map((msg, index) => {
+                  const isUser = msg.sender === 'user';
+                  return (
+                    <div 
+                      key={index}
+                      style={{
+                        alignSelf: isUser ? 'flex-end' : 'flex-start',
+                        maxWidth: isUser ? '75%' : '85%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '6px'
+                      }}
+                    >
+                      {/* Message Header / Identity */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingLeft: isUser ? '0' : '4px', paddingRight: isUser ? '4px' : '0', justifyContent: isUser ? 'flex-end' : 'flex-start' }}>
+                        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: isUser ? '#34d399' : '#38bdf8', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          {isUser ? <User size={12} /> : <Stethoscope size={12} />}
+                          {isUser ? (language === 'hi' ? 'किसान (आप)' : language === 'mrw' ? 'किसान (थें)' : 'Farmer (You)') : 'Dr. AgriVision AI (AIIMS & IITJ)'}
+                        </span>
+                        {msg.time && (
+                          <span style={{ fontSize: '0.68rem', color: 'var(--text-subtle)' }}>{msg.time}</span>
+                        )}
+                      </div>
+
+                      {/* Main Message Bubble */}
+                      <div style={{
+                        background: isUser 
+                          ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' 
+                          : 'rgba(255, 255, 255, 0.05)',
+                        border: isUser 
+                          ? '1px solid rgba(16, 185, 129, 0.5)' 
+                          : '1px solid rgba(255, 255, 255, 0.09)',
+                        color: isUser ? '#ffffff' : 'var(--text-main)',
+                        padding: '14px 18px',
+                        borderRadius: '18px',
+                        borderBottomRightRadius: isUser ? '4px' : '18px',
+                        borderBottomLeftRadius: isUser ? '18px' : '4px',
+                        fontSize: '0.92rem',
+                        lineHeight: 1.55,
+                        boxShadow: isUser ? '0 4px 16px rgba(16, 185, 129, 0.25)' : '0 4px 16px rgba(0,0,0,0.3)',
+                        position: 'relative'
+                      }}>
+                        
+                        {/* Attached Image inside Bubble */}
+                        {msg.image && (
+                          <div style={{ marginBottom: '12px', borderRadius: '12px', overflow: 'hidden', maxWidth: '300px', maxHeight: '200px', border: '1px solid rgba(255,255,255,0.2)', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
+                            <img src={msg.image} alt="Crop or animal photo" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                          </div>
+                        )}
+
+                        {/* Text Content */}
+                        {isUser ? (
+                          <p style={{ margin: 0, fontWeight: 500 }}>{msg.text}</p>
+                        ) : (
+                          renderFormattedAiText(msg.text)
+                        )}
+
+                        {/* AI Bottom Action Toolbar */}
+                        {!isUser && (
+                          <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              
+                              {/* Audio Listen / Stop Button */}
+                              <button 
+                                onClick={() => speakText(msg.text, index)}
+                                style={{
+                                  background: playingMessageIndex === index ? 'rgba(16, 185, 129, 0.25)' : 'rgba(255,255,255,0.06)',
+                                  border: playingMessageIndex === index ? '1px solid #10b981' : '1px solid rgba(255,255,255,0.1)',
+                                  color: playingMessageIndex === index ? '#34d399' : 'var(--text-muted)',
+                                  padding: '5px 10px',
+                                  borderRadius: '8px',
+                                  fontSize: '0.74rem',
+                                  fontWeight: 600,
+                                  cursor: 'pointer',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  transition: 'all 0.2s ease'
+                                }}
+                              >
+                                {playingMessageIndex === index ? (
+                                  <>
+                                    <span style={{ display: 'inline-flex', gap: '2px', alignItems: 'center' }}>
+                                      <span className="soundwave-bar" />
+                                      <span className="soundwave-bar" />
+                                      <span className="soundwave-bar" />
+                                      <span className="soundwave-bar" />
+                                    </span>
+                                    <span>{language === 'hi' ? 'रोकें' : language === 'mrw' ? 'रोको' : 'Stop Audio'}</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Volume2 size={13} color="#10b981" />
+                                    <span>{language === 'hi' ? 'आवाज में सुनें' : language === 'mrw' ? 'आवाज मांय सुणो' : 'Listen Audio'}</span>
+                                  </>
+                                )}
+                              </button>
+
+                              {/* Copy Button */}
+                              <button 
+                                onClick={() => handleCopyAdvice(msg.text, index)}
+                                style={{
+                                  background: copiedIndex === index ? 'rgba(16, 185, 129, 0.25)' : 'rgba(255,255,255,0.06)',
+                                  border: copiedIndex === index ? '1px solid #10b981' : '1px solid rgba(255,255,255,0.1)',
+                                  color: copiedIndex === index ? '#34d399' : 'var(--text-muted)',
+                                  padding: '5px 10px',
+                                  borderRadius: '8px',
+                                  fontSize: '0.74rem',
+                                  fontWeight: 600,
+                                  cursor: 'pointer',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px'
+                                }}
+                              >
+                                {copiedIndex === index ? <CheckCheck size={13} /> : <Copy size={13} />}
+                                <span>{copiedIndex === index ? (language === 'hi' ? 'कॉपी हो गया' : 'Copied!') : (language === 'hi' ? 'कॉपी करें' : 'Copy')}</span>
+                              </button>
+                            </div>
+
+                            {/* Emergency Helpline Direct Shortcut */}
+                            <a 
+                              href="tel:1962"
+                              style={{
+                                color: '#f59e0b',
+                                fontSize: '0.72rem',
+                                fontWeight: 700,
+                                textDecoration: 'none',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                background: 'rgba(245, 158, 11, 0.1)',
+                                padding: '4px 8px',
+                                borderRadius: '6px'
+                              }}
+                            >
+                              <PhoneCall size={12} />
+                              <span>1962 {language === 'hi' ? 'पशु हेल्पलाइन' : 'Vet Helpline'}</span>
+                            </a>
+                          </div>
+                        )}
+
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* AI Analyzing / Multimodal Diagnostic Indicator */}
+                {chatLoading && (
+                  <div style={{
+                    alignSelf: 'flex-start',
+                    maxWidth: '85%',
+                    background: 'rgba(16, 185, 129, 0.08)',
+                    border: '1px solid rgba(16, 185, 129, 0.25)',
+                    color: '#34d399',
+                    padding: '14px 20px',
+                    borderRadius: '18px',
+                    borderBottomLeftRadius: '4px',
+                    fontSize: '0.88rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}>
+                    <RefreshCw size={18} className="spin" />
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>
+                        {language === 'hi' ? 'एग्रीविज़न AI जांच कर रहा है...' : language === 'mrw' ? 'एग्रीविज़न AI जांच कर रह्यो है...' : 'Dr. AgriVision AI is analyzing...'}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                        Evaluating pathological signs via Gemini 3.5 Flash Lite
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div ref={chatEndRef} />
+              </div>
+
+              {/* Floating Attachment Preview Bar */}
+              {chatAttachedImage && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  background: 'rgba(16, 185, 129, 0.14)',
+                  border: '1px solid rgba(16, 185, 129, 0.4)',
+                  padding: '10px 16px',
+                  margin: '0 20px',
+                  borderRadius: '14px',
+                  boxShadow: '0 4px 14px rgba(0,0,0,0.3)'
+                }}>
+                  <img 
+                    src={chatAttachedImage.previewUrl} 
+                    alt="Upload thumbnail" 
+                    style={{ width: '48px', height: '48px', borderRadius: '10px', objectFit: 'cover', border: '2px solid rgba(16,185,129,0.7)' }} 
+                  />
+                  <div style={{ flex: 1, fontSize: '0.84rem' }}>
+                    <div style={{ fontWeight: 700, color: '#34d399' }}>{chatAttachedImage.file.name}</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '0.74rem' }}>
+                      {(chatAttachedImage.file.size / 1024).toFixed(1)} KB • {language === 'hi' ? 'AI दृष्टि जांच हेतु तैयार (फोटो भेजी जाएगी)' : language === 'mrw' ? 'AI दृष्टि जांच खातर तैयार' : 'Ready for Multimodal Vision Analysis'}
+                    </div>
+                  </div>
+                  <button 
+                    type="button" 
+                    onClick={removeChatImage} 
+                    style={{
+                      background: 'rgba(239, 68, 68, 0.25)',
+                      border: '1px solid rgba(239, 68, 68, 0.4)',
+                      color: '#f87171',
+                      borderRadius: '50%',
+                      width: '28px',
+                      height: '28px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer'
+                    }}
+                    title="Remove attached photo"
+                  >
+                    <X size={15} />
+                  </button>
+                </div>
+              )}
+
+              {/* Bottom Input Dock */}
+              <div style={{ padding: '16px 20px', background: 'rgba(0,0,0,0.3)', borderTop: '1px solid var(--border-color)' }}>
+                <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  
+                  {/* Hidden File Input */}
+                  <input 
+                    type="file" 
+                    ref={chatImageInputRef} 
+                    accept="image/*" 
+                    onChange={handleChatImageSelect} 
+                    style={{ display: 'none' }} 
+                  />
+
+                  {/* Photo File Upload Button */}
+                  <button 
+                    type="button" 
+                    onClick={() => chatImageInputRef.current?.click()}
+                    className="btn-secondary"
+                    title={language === 'hi' ? 'गैलरी से फोटो चुनें' : 'Upload photo from device'}
+                    style={{
+                      padding: '12px 14px',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      border: chatAttachedImage ? '1px solid #10b981' : '1px solid var(--border-color)',
+                      background: chatAttachedImage ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.06)'
+                    }}
+                  >
+                    <Image size={18} color={chatAttachedImage ? '#10b981' : 'var(--text-muted)'} />
+                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: chatAttachedImage ? '#34d399' : 'var(--text-muted)' }}>
+                      {language === 'hi' ? 'फोटो' : language === 'mrw' ? 'फोटो' : 'Photo'}
+                    </span>
+                  </button>
+
+                  {/* Live WebRTC Camera Button directly for Chat */}
+                  <button 
+                    type="button" 
+                    onClick={() => startLiveCamera('chat')}
+                    className="btn-secondary"
+                    title={language === 'hi' ? 'लाइव कैमरा से फोटो खींचें' : 'Open Camera to snap photo'}
+                    style={{
+                      padding: '12px 14px',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    <Camera size={18} color="#10b981" />
+                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+                      {language === 'hi' ? 'कैमरा' : language === 'mrw' ? 'कैमरा' : 'Camera'}
+                    </span>
+                  </button>
+
+                  {/* Search / Input Field */}
+                  <input 
+                    type="text" 
+                    placeholder={
+                      language === 'hi' 
+                        ? 'अपनी फसल या पशु संबंधी समस्या लिखें या फोटो भेजें...' 
+                        : language === 'mrw' 
+                          ? 'फसल या पशु री समस्या लिखो या फोटो भेजो सा...' 
+                          : 'Type crop/livestock query or attach a photo...'
+                    }
+                    value={chatInput}
+                    onChange={e => setChatInput(e.target.value)}
+                    style={{
+                      flex: 1,
+                      padding: '14px 18px',
+                      borderRadius: '14px',
+                      background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid rgba(16, 185, 129, 0.3)',
+                      color: 'var(--text-main)',
+                      fontSize: '0.95rem',
+                      outline: 'none'
+                    }}
+                  />
+
+                  {/* Send Button */}
+                  <button 
+                    type="submit" 
+                    className="btn-primary" 
+                    disabled={chatLoading}
+                    style={{ 
+                      padding: '14px 22px', 
+                      borderRadius: '14px',
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '6px',
+                      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                      boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)'
+                    }}
+                  >
+                    {chatLoading ? (
+                      <RefreshCw size={18} className="spin" />
+                    ) : (
+                      <>
+                        <Send size={16} />
+                        <span>{language === 'hi' ? 'भेजें' : language === 'mrw' ? 'भेजो' : 'Send'}</span>
+                      </>
+                    )}
+                  </button>
+                </form>
+              </div>
 
             </div>
 
@@ -1808,6 +2464,7 @@ export default function App() {
                 <div>
                   <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '4px' }}>
                     🗺️ Western Rajasthan GIS Outbreak Radar & KVK Alerts
+
                   </h2>
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
                     Micro-climate disease telemetry synced with Krishi Vigyan Kendra (KVK) centers.
@@ -2234,6 +2891,122 @@ export default function App() {
                 style={{ justifyContent: 'center', padding: '14px' }}
               >
                 <span>{language === 'hi' ? 'रद्द करें' : 'Cancel'}</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+      {/* AI API Key & Gemini 3.5 / 3.1 Flash Lite Diagnostics Modal */}
+      {showApiModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0, 0, 0, 0.85)',
+          backdropFilter: 'blur(12px)',
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px'
+        }}>
+          <div className="glass-panel-glow" style={{ width: '100%', maxWidth: '580px', padding: '28px', borderRadius: '20px', border: '1px solid rgba(16, 185, 129, 0.4)', position: 'relative' }}>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ background: 'var(--gradient-agro)', padding: '8px', borderRadius: '10px', display: 'flex' }}>
+                  <Key size={20} color="#ffffff" />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Gemini AI Engine Settings</h3>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                    Dual-Tier: 1st <b>Gemini 3.5 Flash Lite</b> → Fallback: <b>Gemini 3.1 Flash Lite</b>
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowApiModal(false)}
+                className="btn-secondary"
+                style={{ padding: '6px 12px', fontSize: '0.8rem', border: '1px solid rgba(255,255,255,0.1)' }}
+              >
+                ✕ Close
+              </button>
+            </div>
+
+            {/* Model Architecture Info */}
+            <div style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '12px 16px', borderRadius: '12px', marginBottom: '18px', fontSize: '0.82rem', lineHeight: 1.5 }}>
+              <div style={{ fontWeight: 700, color: '#34d399', marginBottom: '4px' }}>⚡ Active Pipeline Configuration</div>
+              <div style={{ color: 'var(--text-muted)' }}>
+                1. <b>Primary Model:</b> <code style={{ color: '#10b981' }}>gemini-3.5-flash-lite</code> (Ultra-fast multimodal vision & chat)<br/>
+                2. <b>Automatic Fallback:</b> <code style={{ color: '#10b981' }}>gemini-3.1-flash-lite</code> (High-reliability failover)
+              </div>
+            </div>
+
+            {/* Key Input */}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px', color: 'var(--text-primary)' }}>
+                Google Gemini API Key
+              </label>
+              <input 
+                type="password"
+                value={tempKeyInput}
+                onChange={(e) => setTempKeyInput(e.target.value)}
+                placeholder="Enter AIzaSy... or AQ.Ab... key"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  borderRadius: '10px',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid var(--border-color)',
+                  color: '#ffffff',
+                  fontSize: '0.9rem',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '6px' }}>
+                💡 Key is stored in your browser's local cache. For automatic deployment on Vercel, set <code style={{ color: '#34d399' }}>VITE_GEMINI_API_KEY</code> in Vercel Project Settings → Environment Variables.
+              </p>
+            </div>
+
+            {/* Live Test Feedback */}
+            {apiTestStatus && (
+              <div style={{
+                padding: '10px 14px',
+                borderRadius: '10px',
+                marginBottom: '16px',
+                fontSize: '0.82rem',
+                background: apiTestStatus.loading ? 'rgba(59, 130, 246, 0.1)' : apiTestStatus.success ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                border: `1px solid ${apiTestStatus.loading ? '#3b82f6' : apiTestStatus.success ? '#10b981' : '#ef4444'}`,
+                color: apiTestStatus.loading ? '#93c5fd' : apiTestStatus.success ? '#34d399' : '#fca5a5',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                {apiTestStatus.loading && <RefreshCw size={14} className="spin" />}
+                <span>{apiTestStatus.message}</span>
+              </div>
+            )}
+
+            {/* Modal Actions */}
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+              <button 
+                onClick={() => testGeminiConnection()}
+                className="btn-secondary"
+                style={{ fontSize: '0.85rem', padding: '10px 16px' }}
+                disabled={apiTestStatus?.loading}
+              >
+                <Zap size={15} color="#f59e0b" />
+                <span>Test Live Connection</span>
+              </button>
+
+              <button 
+                onClick={handleSaveApiKey}
+                className="btn-primary"
+                style={{ fontSize: '0.85rem', padding: '10px 20px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
+              >
+                <Check size={16} />
+                <span>Save & Activate</span>
               </button>
             </div>
 
