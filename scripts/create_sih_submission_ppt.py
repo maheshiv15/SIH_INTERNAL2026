@@ -6,12 +6,37 @@ from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 
 def generate_sih_presentation():
-    input_path = r'D:\NEW CODING PROJECTS\SIH_INTERNAL\SIH PPT FORMAT.pptx'
+    # Look in documents/ or root for template
+    input_path = r'D:\NEW CODING PROJECTS\SIH_INTERNAL\documents\SIH PPT FORMAT.pptx'
+    if not os.path.exists(input_path):
+        input_path = r'D:\NEW CODING PROJECTS\SIH_INTERNAL\SIH PPT FORMAT.pptx'
+
     output_pptx = r'D:\NEW CODING PROJECTS\SIH_INTERNAL\SIH_2026_AgriVision_AI_Submission.pptx'
     output_pdf = r'D:\NEW CODING PROJECTS\SIH_INTERNAL\SIH_2026_AgriVision_AI_Submission.pdf'
+    
+    # Also save a copy inside documents/ for convenience
+    doc_pptx = r'D:\NEW CODING PROJECTS\SIH_INTERNAL\documents\SIH_2026_AgriVision_AI_Submission.pptx'
+    doc_pdf = r'D:\NEW CODING PROJECTS\SIH_INTERNAL\documents\SIH_2026_AgriVision_AI_Submission.pdf'
 
     prs = pptx.Presentation(input_path)
     
+    # Helper to style top-left oval
+    def style_oval(oval_shape):
+        oval_shape.left = Inches(0.3)
+        oval_shape.top = Inches(0.2)
+        oval_shape.width = Inches(1.8)
+        oval_shape.height = Inches(0.9)
+        tf = oval_shape.text_frame
+        tf.word_wrap = False
+        tf.clear()
+        p = tf.paragraphs[0]
+        p.alignment = PP_ALIGN.CENTER
+        run = p.add_run()
+        run.text = "NeoMedtech"
+        run.font.bold = True
+        run.font.size = Pt(11)
+        run.font.color.rgb = RGBColor(16, 185, 129)
+
     # ----------------------------------------------------
     # SLIDE 1: TITLE PAGE
     # ----------------------------------------------------
@@ -32,6 +57,10 @@ def generate_sih_presentation():
                 p.font.bold = True
                 p.font.color.rgb = RGBColor(100, 116, 139)
             elif 'Problem Statement ID' in text:
+                shape.top = Inches(1.8)
+                shape.left = Inches(0.4)
+                shape.width = Inches(8.5)
+                shape.height = Inches(4.8)
                 tf = shape.text_frame
                 tf.clear()
                 
@@ -47,7 +76,7 @@ def generate_sih_presentation():
                 
                 for idx, (label, val) in enumerate(details):
                     p = tf.add_paragraph() if idx > 0 else tf.paragraphs[0]
-                    p.space_after = Pt(4)
+                    p.space_after = Pt(6)
                     r1 = p.add_run()
                     r1.text = label
                     r1.font.bold = True
@@ -72,9 +101,13 @@ def generate_sih_presentation():
                 p.font.bold = True
                 p.font.size = Pt(20)
                 p.font.color.rgb = RGBColor(16, 185, 129)
-            elif 'Your Team Name' in shape.text:
-                shape.text_frame.text = "NeoMedtech"
+            elif 'Your Team Name' in shape.text or 'NeoMe' in shape.text:
+                style_oval(shape)
             elif 'Proposed Solution' in shape.text:
+                shape.top = Inches(1.3)
+                shape.left = Inches(0.6)
+                shape.width = Inches(11.4)
+                shape.height = Inches(5.2)
                 tf = shape.text_frame
                 tf.clear()
                 
@@ -89,17 +122,17 @@ def generate_sih_presentation():
                 
                 for idx, (title, desc) in enumerate(bullets):
                     p = tf.add_paragraph() if idx > 0 else tf.paragraphs[0]
-                    p.space_after = Pt(4)
+                    p.space_after = Pt(6)
                     r1 = p.add_run()
-                    r1.text = "• " + title
+                    r1.text = title
                     r1.font.bold = True
-                    r1.font.size = Pt(12)
+                    r1.font.size = Pt(13)
                     r1.font.color.rgb = RGBColor(15, 23, 42)
                     
                     r2 = p.add_run()
                     r2.text = desc
                     r2.font.bold = False
-                    r2.font.size = Pt(11)
+                    r2.font.size = Pt(12)
                     r2.font.color.rgb = RGBColor(51, 65, 85)
 
     # ----------------------------------------------------
@@ -114,9 +147,13 @@ def generate_sih_presentation():
                 p.font.bold = True
                 p.font.size = Pt(20)
                 p.font.color.rgb = RGBColor(16, 185, 129)
-            elif 'Your Team Name' in shape.text:
-                shape.text_frame.text = "NeoMedtech"
-            elif 'Technologies to be used' in shape.text:
+            elif 'Your Team Name' in shape.text or 'NeoMe' in shape.text:
+                style_oval(shape)
+            elif 'Technologies to be used' in shape.text or '1. Frontend' in shape.text:
+                shape.top = Inches(1.3)
+                shape.left = Inches(0.6)
+                shape.width = Inches(11.4)
+                shape.height = Inches(5.2)
                 tf = shape.text_frame
                 tf.clear()
                 
@@ -131,17 +168,17 @@ def generate_sih_presentation():
                 
                 for idx, (title, desc) in enumerate(tech_bullets):
                     p = tf.add_paragraph() if idx > 0 else tf.paragraphs[0]
-                    p.space_after = Pt(4)
+                    p.space_after = Pt(6)
                     r1 = p.add_run()
-                    r1.text = "• " + title
+                    r1.text = title
                     r1.font.bold = True
-                    r1.font.size = Pt(12)
+                    r1.font.size = Pt(13)
                     r1.font.color.rgb = RGBColor(15, 23, 42)
                     
                     r2 = p.add_run()
                     r2.text = desc
                     r2.font.bold = False
-                    r2.font.size = Pt(11)
+                    r2.font.size = Pt(12)
                     r2.font.color.rgb = RGBColor(51, 65, 85)
 
     # ----------------------------------------------------
@@ -156,9 +193,13 @@ def generate_sih_presentation():
                 p.font.bold = True
                 p.font.size = Pt(20)
                 p.font.color.rgb = RGBColor(16, 185, 129)
-            elif 'Your Team Name' in shape.text:
-                shape.text_frame.text = "NeoMedtech"
-            elif 'Analysis of the feasibility' in shape.text:
+            elif 'Your Team Name' in shape.text or 'NeoMe' in shape.text:
+                style_oval(shape)
+            elif 'Analysis of the feasibility' in shape.text or '1. High Technical' in shape.text:
+                shape.top = Inches(1.3)
+                shape.left = Inches(0.6)
+                shape.width = Inches(11.4)
+                shape.height = Inches(5.2)
                 tf = shape.text_frame
                 tf.clear()
                 
@@ -173,17 +214,17 @@ def generate_sih_presentation():
                 
                 for idx, (title, desc) in enumerate(feas_bullets):
                     p = tf.add_paragraph() if idx > 0 else tf.paragraphs[0]
-                    p.space_after = Pt(4)
+                    p.space_after = Pt(6)
                     r1 = p.add_run()
-                    r1.text = "• " + title
+                    r1.text = title
                     r1.font.bold = True
-                    r1.font.size = Pt(12)
+                    r1.font.size = Pt(13)
                     r1.font.color.rgb = RGBColor(15, 23, 42)
                     
                     r2 = p.add_run()
                     r2.text = desc
                     r2.font.bold = False
-                    r2.font.size = Pt(11)
+                    r2.font.size = Pt(12)
                     r2.font.color.rgb = RGBColor(51, 65, 85)
 
     # ----------------------------------------------------
@@ -198,9 +239,13 @@ def generate_sih_presentation():
                 p.font.bold = True
                 p.font.size = Pt(20)
                 p.font.color.rgb = RGBColor(16, 185, 129)
-            elif 'Your Team Name' in shape.text:
-                shape.text_frame.text = "NeoMedtech"
-            elif 'Potential impact on the target audience' in shape.text:
+            elif 'Your Team Name' in shape.text or 'NeoMe' in shape.text:
+                style_oval(shape)
+            elif 'Potential impact on the target audience' in shape.text or '1. Direct Impact' in shape.text:
+                shape.top = Inches(1.3)
+                shape.left = Inches(0.6)
+                shape.width = Inches(11.4)
+                shape.height = Inches(5.2)
                 tf = shape.text_frame
                 tf.clear()
                 
@@ -215,17 +260,17 @@ def generate_sih_presentation():
                 
                 for idx, (title, desc) in enumerate(impact_bullets):
                     p = tf.add_paragraph() if idx > 0 else tf.paragraphs[0]
-                    p.space_after = Pt(4)
+                    p.space_after = Pt(6)
                     r1 = p.add_run()
-                    r1.text = "• " + title
+                    r1.text = title
                     r1.font.bold = True
-                    r1.font.size = Pt(12)
+                    r1.font.size = Pt(13)
                     r1.font.color.rgb = RGBColor(15, 23, 42)
                     
                     r2 = p.add_run()
                     r2.text = desc
                     r2.font.bold = False
-                    r2.font.size = Pt(11)
+                    r2.font.size = Pt(12)
                     r2.font.color.rgb = RGBColor(51, 65, 85)
 
     # ----------------------------------------------------
@@ -240,9 +285,13 @@ def generate_sih_presentation():
                 p.font.bold = True
                 p.font.size = Pt(20)
                 p.font.color.rgb = RGBColor(16, 185, 129)
-            elif 'Your Team Name' in shape.text:
-                shape.text_frame.text = "NeoMedtech"
-            elif 'Details / Links of the reference' in shape.text:
+            elif 'Your Team Name' in shape.text or 'NeoMe' in shape.text:
+                style_oval(shape)
+            elif 'Details / Links of the reference' in shape.text or '1. ICAR' in shape.text:
+                shape.top = Inches(1.3)
+                shape.left = Inches(0.6)
+                shape.width = Inches(11.4)
+                shape.height = Inches(5.2)
                 tf = shape.text_frame
                 tf.clear()
                 
@@ -257,17 +306,17 @@ def generate_sih_presentation():
                 
                 for idx, (title, desc) in enumerate(ref_bullets):
                     p = tf.add_paragraph() if idx > 0 else tf.paragraphs[0]
-                    p.space_after = Pt(4)
+                    p.space_after = Pt(6)
                     r1 = p.add_run()
-                    r1.text = "• " + title
+                    r1.text = title
                     r1.font.bold = True
-                    r1.font.size = Pt(12)
+                    r1.font.size = Pt(13)
                     r1.font.color.rgb = RGBColor(15, 23, 42)
                     
                     r2 = p.add_run()
                     r2.text = desc
                     r2.font.bold = False
-                    r2.font.size = Pt(11)
+                    r2.font.size = Pt(12)
                     r2.font.color.rgb = RGBColor(51, 65, 85)
 
     # ----------------------------------------------------
@@ -280,7 +329,8 @@ def generate_sih_presentation():
         print("Slide 7 (Instructions) successfully removed. Total slides remaining: 6")
 
     prs.save(output_pptx)
-    print(f"Presentation saved successfully to: {output_pptx}")
+    prs.save(doc_pptx)
+    print(f"Presentation saved successfully to: {output_pptx} and {doc_pptx}")
 
     # Convert to PDF using PowerPoint COM
     try:
@@ -291,10 +341,11 @@ def generate_sih_presentation():
         powerpoint.Visible = 1
         deck = powerpoint.Presentations.Open(output_pptx)
         deck.SaveAs(output_pdf, 32) # 32 represents ppSaveAsPDF
+        deck.SaveAs(doc_pdf, 32)
         deck.Close()
         powerpoint.Quit()
         pythoncom.CoUninitialize()
-        print(f"PDF exported successfully to: {output_pdf}")
+        print(f"PDF exported successfully to: {output_pdf} and {doc_pdf}")
     except Exception as e:
         print(f"PowerPoint COM export error: {e}")
 
