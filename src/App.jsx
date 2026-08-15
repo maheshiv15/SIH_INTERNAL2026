@@ -1226,7 +1226,7 @@ export default function App() {
           }
 
           return (
-            <p key={lIdx} style={{ margin: 0, lineHeight: 1.6, color: '#f1f5f9' }}>
+            <p key={lIdx} style={{ margin: 0, lineHeight: 1.6, color: 'var(--text-main)' }}>
               {formattedParts}
             </p>
           );
@@ -3468,7 +3468,7 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
                 {msg.sender === 'ai' && (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px', paddingTop: '4px', borderTop: '1px solid var(--border-color)', fontSize: '0.72rem' }}>
                     <button 
-                      onClick={() => handleSpeakAdvice(msg.text, idx)}
+                      onClick={() => speakText(msg.text, idx)}
                       style={{ background: 'transparent', border: 'none', color: playingMessageIndex === idx ? '#10b981' : 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
                     >
                       <Volume2 size={13} />
@@ -3497,7 +3497,7 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
 
           {/* Quick Prompts Horizontal Strip */}
           <div style={{ padding: '6px 10px', background: 'rgba(0,0,0,0.03)', borderTop: '1px solid var(--border-color)', display: 'flex', gap: '6px', overflowX: 'auto', whiteSpace: 'nowrap' }}>
-            {(quickPrompts[language] || quickPrompts.hi).slice(0, 3).map((prompt, pIdx) => (
+            {(quickPromptChips[language] || quickPromptChips.hi).slice(0, 3).map((prompt, pIdx) => (
               <button 
                 key={pIdx}
                 onClick={() => handleSelectQuickPrompt(prompt.query)}
@@ -3523,7 +3523,7 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
           )}
 
           {/* Input Bar */}
-          <form onSubmit={handleSendChatMessage} style={{ padding: '10px', borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--bg-card)' }}>
+          <form onSubmit={handleSendMessage} style={{ padding: '10px', borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--bg-card)' }}>
             <label style={{ cursor: 'pointer', padding: '6px', color: 'var(--text-muted)' }} title="Attach Photo">
               <Paperclip size={18} />
               <input ref={chatImageInputRef} type="file" accept="image/*" onChange={handleChatImageSelect} style={{ display: 'none' }} />
