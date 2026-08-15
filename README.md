@@ -131,10 +131,10 @@ npm run build
 
 ## 🏆 SIH 2026 Evaluation Deliverables
 
-* 🌐 **Live Web Application:** [https://sih-internal-2026-pi.vercel.app/](https://sih-internal-2026-pi.vercel.app/)
-* 💻 **GitHub Repository:** [https://github.com/maheshiv15/SIH_INTERNAL2026](https://github.com/maheshiv15/SIH_INTERNAL2026)
-* 📄 **Official 6-Slide Pitch Deck (PDF):** [`SIH_2026_AgriVision_AI_Submission.pdf`](./SIH_2026_AgriVision_AI_Submission.pdf)
-* 📊 **Official Presentation (PPTX):** [`SIH_2026_AgriVision_AI_Submission.pptx`](./SIH_2026_AgriVision_AI_Submission.pptx)
+* 🌐 **Live Web Application (Vercel):** [https://sih-internal-2026-pi.vercel.app/](https://sih-internal-2026-pi.vercel.app/)
+* 💻 **GitHub Source Repository:** [https://github.com/maheshiv15/SIH_INTERNAL2026](https://github.com/maheshiv15/SIH_INTERNAL2026)
+* 📄 **Official 6-Slide Pitch Deck (PDF — View Directly on GitHub):** [**`SIH_2026_AgriVision_AI_Submission.pdf`**](./SIH_2026_AgriVision_AI_Submission.pdf)
+* 📊 **Official Presentation Source (PPTX — Editable File):** [**`SIH_2026_AgriVision_AI_Submission.pptx`**](./SIH_2026_AgriVision_AI_Submission.pptx)
 
 ---
 *Developed with pride by **Team NeoMedtech**, Indian Institute of Technology Jodhpur (IIT Jodhpur) for Smart India Hackathon 2026.*

@@ -19,3 +19,4 @@ dist-ssr/
 documents/
 *.docx
 *.pptx
+!SIH_2026_AgriVision_AI_Submission.pptx
