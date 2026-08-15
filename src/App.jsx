@@ -2469,425 +2469,161 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
           </div>
         )}
 
-        {/* TAB 4: MULTILINGUAL AI CHAT & VOICE ADVISORY */}
+        {/* TAB 4: AGRO-WEATHER FORECAST, OUTBREAK RADAR & APMC MANDI HUB */}
         {activeTab === 'advisory' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             
-            {/* Main AI Chat & Clinical Advisory Panel */}
-            <div className="glass-panel-glow" style={{ padding: '0', display: 'flex', flexDirection: 'column', height: '680px', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(16, 185, 129, 0.35)', background: 'linear-gradient(180deg, rgba(17, 24, 39, 0.95) 0%, rgba(10, 15, 29, 0.98) 100%)' }}>
-              
-              {/* Doctor Status Bar & Top Header */}
-              <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', background: 'rgba(255,255,255,0.02)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  <div style={{ position: 'relative' }}>
-                    <div style={{ background: 'var(--gradient-agro)', width: '44px', height: '44px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)' }}>
-                      <Stethoscope size={22} color="#ffffff" />
-                    </div>
-                    <span style={{ position: 'absolute', bottom: '-2px', right: '-2px', width: '12px', height: '12px', background: '#10b981', borderRadius: '50%', border: '2px solid #0a0f1d' }} />
-                  </div>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <h3 style={{ fontSize: '1.15rem', fontWeight: 800 }}>Dr. AgriVision AI</h3>
-                      <span className="badge badge-emerald" style={{ fontSize: '0.68rem', padding: '2px 8px' }}>AIIMS & IITJ Model</span>
-                    </div>
-                    <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                      {language === 'hi' ? 'पौधा रोग विशेषज्ञ एवं पशु चिकित्सा क्लीनिकल सहायक' : 'Multimodal Plant Pathologist & Veterinary Clinical Specialist'}
-                    </p>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  {/* Clear / New Chat Button */}
-                  <button 
-                    onClick={handleClearChat}
-                    className="btn-secondary"
-                    style={{ fontSize: '0.78rem', padding: '7px 12px', borderRadius: '10px' }}
-                    title="Start New Chat Session (नया चैट शुरू करें)"
-                  >
-                    <RefreshCcw size={14} color="var(--text-muted)" />
-                    <span>{language === 'hi' ? 'नया चैट' : language === 'mrw' ? 'नयी बातचीत' : 'New Chat'}</span>
-                  </button>
-
-                  {/* Speech Recognition Voice Button */}
-                  <button 
-                    onClick={startVoiceInput}
-                    className="btn-secondary" 
-                    style={{
-                      fontSize: '0.78rem',
-                      padding: '7px 14px',
-                      borderRadius: '10px',
-                      border: isListening ? '1px solid #ef4444' : '1px solid rgba(16, 185, 129, 0.4)',
-                      background: isListening ? 'rgba(239, 68, 68, 0.18)' : 'rgba(16, 185, 129, 0.12)',
-                      color: isListening ? '#f87171' : '#34d399',
-                      fontWeight: 600
-                    }}
-                  >
-                    <Volume2 size={15} color={isListening ? '#ef4444' : '#10b981'} className={isListening ? 'spin' : ''} />
-                    <span>{isListening ? (language === 'hi' ? 'सुन रहा हूँ...' : language === 'mrw' ? 'सुण रह्यो हूँ...' : 'Listening...') : (language === 'hi' ? 'बोलकर पूछें' : language === 'mrw' ? 'बोलकर पूछो' : 'Voice Input')}</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Interactive Quick Prompts Carousel */}
-              <div style={{ padding: '10px 20px', background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', gap: '8px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <Sparkles size={13} color="#f59e0b" />
-                  {language === 'hi' ? 'त्वरित प्रश्न:' : language === 'mrw' ? 'तुरंत पूछो:' : 'Quick Prompts:'}
-                </span>
-                {(quickPromptChips[language] || quickPromptChips.hi).map((chip, cIdx) => (
-                  <button 
-                    key={cIdx} 
-                    onClick={() => handleSelectQuickPrompt(chip.query)}
-                    className="prompt-chip"
-                  >
-                    <span>{chip.label}</span>
-                  </button>
-                ))}
-              </div>
-
-              {/* Chat Message Scroll Feed */}
-              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '18px', padding: '20px 24px', scrollBehavior: 'smooth' }}>
-                {chatMessages.map((msg, index) => {
-                  const isUser = msg.sender === 'user';
-                  return (
-                    <div 
-                      key={index}
-                      style={{
-                        alignSelf: isUser ? 'flex-end' : 'flex-start',
-                        maxWidth: isUser ? '75%' : '85%',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '6px'
-                      }}
-                    >
-                      {/* Message Header / Identity */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingLeft: isUser ? '0' : '4px', paddingRight: isUser ? '4px' : '0', justifyContent: isUser ? 'flex-end' : 'flex-start' }}>
-                        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: isUser ? '#34d399' : '#38bdf8', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          {isUser ? <User size={12} /> : <Stethoscope size={12} />}
-                          {isUser ? (language === 'hi' ? 'किसान (आप)' : language === 'mrw' ? 'किसान (थें)' : 'Farmer (You)') : 'Dr. AgriVision AI (AIIMS & IITJ)'}
-                        </span>
-                        {msg.time && (
-                          <span style={{ fontSize: '0.68rem', color: 'var(--text-subtle)' }}>{msg.time}</span>
-                        )}
-                      </div>
-
-                      {/* Main Message Bubble */}
-                      <div style={{
-                        background: isUser 
-                          ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' 
-                          : 'rgba(255, 255, 255, 0.05)',
-                        border: isUser 
-                          ? '1px solid rgba(16, 185, 129, 0.5)' 
-                          : '1px solid rgba(255, 255, 255, 0.09)',
-                        color: isUser ? '#ffffff' : 'var(--text-main)',
-                        padding: '14px 18px',
-                        borderRadius: '18px',
-                        borderBottomRightRadius: isUser ? '4px' : '18px',
-                        borderBottomLeftRadius: isUser ? '18px' : '4px',
-                        fontSize: '0.92rem',
-                        lineHeight: 1.55,
-                        boxShadow: isUser ? '0 4px 16px rgba(16, 185, 129, 0.25)' : '0 4px 16px rgba(0,0,0,0.3)',
-                        position: 'relative'
-                      }}>
-                        
-                        {/* Attached Image inside Bubble */}
-                        {msg.image && (
-                          <div style={{ marginBottom: '12px', borderRadius: '12px', overflow: 'hidden', maxWidth: '300px', maxHeight: '200px', border: '1px solid rgba(255,255,255,0.2)', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
-                            <img src={msg.image} alt="Crop or animal photo" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                          </div>
-                        )}
-
-                        {/* Text Content */}
-                        {isUser ? (
-                          <p style={{ margin: 0, fontWeight: 500 }}>{msg.text}</p>
-                        ) : (
-                          renderFormattedAiText(msg.text)
-                        )}
-
-                        {/* AI Bottom Action Toolbar */}
-                        {!isUser && (
-                          <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              
-                              {/* Audio Listen / Stop Button */}
-                              <button 
-                                onClick={() => speakText(msg.text, index)}
-                                style={{
-                                  background: playingMessageIndex === index ? 'rgba(16, 185, 129, 0.25)' : 'rgba(255,255,255,0.06)',
-                                  border: playingMessageIndex === index ? '1px solid #10b981' : '1px solid rgba(255,255,255,0.1)',
-                                  color: playingMessageIndex === index ? '#34d399' : 'var(--text-muted)',
-                                  padding: '5px 10px',
-                                  borderRadius: '8px',
-                                  fontSize: '0.74rem',
-                                  fontWeight: 600,
-                                  cursor: 'pointer',
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: '6px',
-                                  transition: 'all 0.2s ease'
-                                }}
-                              >
-                                {playingMessageIndex === index ? (
-                                  <>
-                                    <span style={{ display: 'inline-flex', gap: '2px', alignItems: 'center' }}>
-                                      <span className="soundwave-bar" />
-                                      <span className="soundwave-bar" />
-                                      <span className="soundwave-bar" />
-                                      <span className="soundwave-bar" />
-                                    </span>
-                                    <span>{language === 'hi' ? 'रोकें' : language === 'mrw' ? 'रोको' : 'Stop Audio'}</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Volume2 size={13} color="#10b981" />
-                                    <span>{language === 'hi' ? 'आवाज में सुनें' : language === 'mrw' ? 'आवाज मांय सुणो' : 'Listen Audio'}</span>
-                                  </>
-                                )}
-                              </button>
-
-                              {/* Copy Button */}
-                              <button 
-                                onClick={() => handleCopyAdvice(msg.text, index)}
-                                style={{
-                                  background: copiedIndex === index ? 'rgba(16, 185, 129, 0.25)' : 'rgba(255,255,255,0.06)',
-                                  border: copiedIndex === index ? '1px solid #10b981' : '1px solid rgba(255,255,255,0.1)',
-                                  color: copiedIndex === index ? '#34d399' : 'var(--text-muted)',
-                                  padding: '5px 10px',
-                                  borderRadius: '8px',
-                                  fontSize: '0.74rem',
-                                  fontWeight: 600,
-                                  cursor: 'pointer',
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: '4px'
-                                }}
-                              >
-                                {copiedIndex === index ? <CheckCheck size={13} /> : <Copy size={13} />}
-                                <span>{copiedIndex === index ? (language === 'hi' ? 'कॉपी हो गया' : 'Copied!') : (language === 'hi' ? 'कॉपी करें' : 'Copy')}</span>
-                              </button>
-                            </div>
-
-                            {/* Emergency Helpline Direct Shortcut */}
-                            <a 
-                              href="tel:1962"
-                              style={{
-                                color: '#f59e0b',
-                                fontSize: '0.72rem',
-                                fontWeight: 700,
-                                textDecoration: 'none',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '4px',
-                                background: 'rgba(245, 158, 11, 0.1)',
-                                padding: '4px 8px',
-                                borderRadius: '6px'
-                              }}
-                            >
-                              <PhoneCall size={12} />
-                              <span>1962 {language === 'hi' ? 'पशु हेल्पलाइन' : 'Vet Helpline'}</span>
-                            </a>
-                          </div>
-                        )}
-
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {/* AI Analyzing / Multimodal Diagnostic Indicator */}
-                {chatLoading && (
-                  <div style={{
-                    alignSelf: 'flex-start',
-                    maxWidth: '85%',
-                    background: 'rgba(16, 185, 129, 0.08)',
-                    border: '1px solid rgba(16, 185, 129, 0.25)',
-                    color: '#34d399',
-                    padding: '14px 20px',
-                    borderRadius: '18px',
-                    borderBottomLeftRadius: '4px',
-                    fontSize: '0.88rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px'
-                  }}>
-                    <RefreshCw size={18} className="spin" />
-                    <div>
-                      <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>
-                        {language === 'hi' ? 'एग्रीविज़न AI जांच कर रहा है...' : language === 'mrw' ? 'एग्रीविज़न AI जांच कर रह्यो है...' : 'Dr. AgriVision AI is analyzing...'}
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        Evaluating pathological signs via Gemini 3.5 Flash Lite
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <div ref={chatEndRef} />
-              </div>
-
-              {/* Floating Attachment Preview Bar */}
-              {chatAttachedImage && (
-                <div style={{
-                  display: 'flex',
+            {/* Top Navigation & Breadcrumb */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+              <button 
+                onClick={() => setActiveTab('home')}
+                className="btn-secondary"
+                style={{
+                  display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '12px',
-                  background: 'rgba(16, 185, 129, 0.14)',
-                  border: '1px solid rgba(16, 185, 129, 0.4)',
-                  padding: '10px 16px',
-                  margin: '0 20px',
-                  borderRadius: '14px',
-                  boxShadow: '0 4px 14px rgba(0,0,0,0.3)'
-                }}>
-                  <img 
-                    src={chatAttachedImage.previewUrl} 
-                    alt="Upload thumbnail" 
-                    style={{ width: '48px', height: '48px', borderRadius: '10px', objectFit: 'cover', border: '2px solid rgba(16,185,129,0.7)' }} 
-                  />
-                  <div style={{ flex: 1, fontSize: '0.84rem' }}>
-                    <div style={{ fontWeight: 700, color: '#34d399' }}>{chatAttachedImage.file.name}</div>
-                    <div style={{ color: 'var(--text-muted)', fontSize: '0.74rem' }}>
-                      {(chatAttachedImage.file.size / 1024).toFixed(1)} KB • {language === 'hi' ? 'AI दृष्टि जांच हेतु तैयार (फोटो भेजी जाएगी)' : language === 'mrw' ? 'AI दृष्टि जांच खातर तैयार' : 'Ready for Multimodal Vision Analysis'}
-                    </div>
-                  </div>
-                  <button 
-                    type="button" 
-                    onClick={removeChatImage} 
-                    style={{
-                      background: 'rgba(239, 68, 68, 0.25)',
-                      border: '1px solid rgba(239, 68, 68, 0.4)',
-                      color: '#f87171',
-                      borderRadius: '50%',
-                      width: '28px',
-                      height: '28px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer'
-                    }}
-                    title="Remove attached photo"
-                  >
-                    <X size={15} />
-                  </button>
-                </div>
-              )}
+                  gap: '8px',
+                  padding: '8px 16px',
+                  borderRadius: '12px',
+                  fontWeight: 700,
+                  fontSize: '0.88rem',
+                  color: 'var(--accent-emerald)',
+                  border: '1px solid var(--accent-emerald)',
+                  background: 'rgba(5, 150, 105, 0.08)',
+                  cursor: 'pointer'
+                }}
+              >
+                <ArrowLeft size={16} />
+                <span>{language === 'hi' ? '← मुख्य पृष्ठ (होम)' : language === 'mrw' ? '← मुख्य पृष्ठ (होम)' : '← Back to Home Dashboard'}</span>
+              </button>
 
-              {/* Bottom Input Dock */}
-              <div style={{ padding: '16px 20px', background: 'rgba(0,0,0,0.3)', borderTop: '1px solid var(--border-color)' }}>
-                <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                  
-                  {/* Hidden File Input */}
-                  <input 
-                    type="file" 
-                    ref={chatImageInputRef} 
-                    accept="image/*" 
-                    onChange={handleChatImageSelect} 
-                    style={{ display: 'none' }} 
-                  />
-
-                  {/* Photo File Upload Button */}
-                  <button 
-                    type="button" 
-                    onClick={() => chatImageInputRef.current?.click()}
-                    className="btn-secondary"
-                    title={language === 'hi' ? 'गैलरी से फोटो चुनें' : 'Upload photo from device'}
-                    style={{
-                      padding: '12px 14px',
-                      borderRadius: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      border: chatAttachedImage ? '1px solid #10b981' : '1px solid var(--border-color)',
-                      background: chatAttachedImage ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.06)'
-                    }}
-                  >
-                    <Image size={18} color={chatAttachedImage ? '#10b981' : 'var(--text-muted)'} />
-                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: chatAttachedImage ? '#34d399' : 'var(--text-muted)' }}>
-                      {language === 'hi' ? 'फोटो' : language === 'mrw' ? 'फोटो' : 'Photo'}
-                    </span>
-                  </button>
-
-                  {/* Live WebRTC Camera Button directly for Chat */}
-                  <button 
-                    type="button" 
-                    onClick={() => startLiveCamera('chat')}
-                    className="btn-secondary"
-                    title={language === 'hi' ? 'लाइव कैमरा से फोटो खींचें' : 'Open Camera to snap photo'}
-                    style={{
-                      padding: '12px 14px',
-                      borderRadius: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}
-                  >
-                    <Camera size={18} color="#10b981" />
-                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-muted)' }}>
-                      {language === 'hi' ? 'कैमरा' : language === 'mrw' ? 'कैमरा' : 'Camera'}
-                    </span>
-                  </button>
-
-                  {/* Search / Input Field */}
-                  <input 
-                    type="text" 
-                    placeholder={
-                      language === 'hi' 
-                        ? 'अपनी फसल या पशु संबंधी समस्या लिखें या फोटो भेजें...' 
-                        : language === 'mrw' 
-                          ? 'फसल या पशु री समस्या लिखो या फोटो भेजो सा...' 
-                          : 'Type crop/livestock query or attach a photo...'
-                    }
-                    value={chatInput}
-                    onChange={e => setChatInput(e.target.value)}
-                    style={{
-                      flex: 1,
-                      padding: '14px 18px',
-                      borderRadius: '14px',
-                      background: 'rgba(255,255,255,0.06)',
-                      border: '1px solid rgba(16, 185, 129, 0.3)',
-                      color: 'var(--text-main)',
-                      fontSize: '0.95rem',
-                      outline: 'none'
-                    }}
-                  />
-
-                  {/* Send Button */}
-                  <button 
-                    type="submit" 
-                    className="btn-primary" 
-                    disabled={chatLoading}
-                    style={{ 
-                      padding: '14px 22px', 
-                      borderRadius: '14px',
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '6px',
-                      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                      boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)'
-                    }}
-                  >
-                    {chatLoading ? (
-                      <RefreshCw size={18} className="spin" />
-                    ) : (
-                      <>
-                        <Send size={16} />
-                        <span>{language === 'hi' ? 'भेजें' : language === 'mrw' ? 'भेजो' : 'Send'}</span>
-                      </>
-                    )}
-                  </button>
-                </form>
+              <div className="badge badge-amber" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', padding: '6px 14px' }}>
+                <Sparkles size={14} />
+                <span>{language === 'hi' ? 'ताजा कृषि मौसम व मंडी भाव केंद्र' : 'Live Agro-Weather & Mandi Hub'}</span>
               </div>
-
             </div>
 
-            {/* Western Rajasthan District Disease Outbreak Radar Grid */}
+            {/* SECTION 1: 5-DAY AGRO-WEATHER & FUNGUS SPORE RISK FORECAST */}
+            <div className="glass-panel" style={{ padding: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '18px' }}>
+                <div>
+                  <h2 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '4px', color: 'var(--text-main)' }}>
+                    🌦️ {language === 'hi' ? '5-दिवसीय कृषि मौसम पूर्वानुमान एवं कवक झुलसा जोखिम' : language === 'mrw' ? '5-दिनां रो मौसम अनुमान अर झुलसा जोखिम' : '5-Day Agro-Weather Forecast & Spore Risk Barometer'}
+                  </h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                    {language === 'hi' ? 'जोधपुर, नागौर, पाली, बाड़मेर व जैसलमेर क्षेत्र का वास्तविक समय माइक्रो-क्लाइमेट बुलेटिन' : 'Real-time micro-climate telemetry for Western Rajasthan farming belt.'}
+                  </p>
+                </div>
+
+                <span className="badge badge-emerald" style={{ fontSize: '0.8rem' }}>
+                  📍 जोधपुर मंडल (Jodhpur Region)
+                </span>
+              </div>
+
+              {/* 5-Day Weather Cards Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '14px' }}>
+                {[
+                  { day: language === 'hi' ? 'आज (Today)' : 'Today', date: '15 Aug', temp: '33°C / 22°C', icon: '☀️', weather: language === 'hi' ? 'धूप व हल्की हवा' : 'Sunny & Mild Breeze', rain: '10%', humidity: '55%', risk: language === 'hi' ? 'सामान्य (Low)' : 'Low', badgeClass: 'badge-emerald' },
+                  { day: language === 'hi' ? 'कल (Tomorrow)' : 'Tomorrow', date: '16 Aug', temp: '34°C / 23°C', icon: '⛅', weather: language === 'hi' ? 'आंशिक बादल' : 'Partly Cloudy', rain: '25%', humidity: '64%', risk: language === 'hi' ? 'कवक मध्यम (Moderate)' : 'Moderate', badgeClass: 'badge-amber' },
+                  { day: language === 'hi' ? 'सोमवार (Day 3)' : 'Monday', date: '17 Aug', temp: '30°C / 20°C', icon: '🌧️', weather: language === 'hi' ? 'तेज हवा व गरज' : 'Rain & Gusty Winds', rain: '70%', humidity: '82%', risk: language === 'hi' ? 'झुलसा अलर्ट (High)' : 'High Risk', badgeClass: 'badge-rose' },
+                  { day: language === 'hi' ? 'मंगलवार (Day 4)' : 'Tuesday', date: '18 Aug', temp: '29°C / 19°C', icon: '🌦️', weather: language === 'hi' ? 'हल्की बारिश' : 'Scattered Showers', rain: '55%', humidity: '79%', risk: language === 'hi' ? 'फफूंद सतर्कता (High)' : 'High Risk', badgeClass: 'badge-rose' },
+                  { day: language === 'hi' ? 'बुधवार (Day 5)' : 'Wednesday', date: '19 Aug', temp: '32°C / 21°C', icon: '🌤️', weather: language === 'hi' ? 'साफ आसमान' : 'Clear & Dry', rain: '15%', humidity: '58%', risk: language === 'hi' ? 'सामान्य (Low)' : 'Low', badgeClass: 'badge-emerald' }
+                ].map((w, idx) => (
+                  <div key={idx} className="glass-panel-glow" style={{ padding: '16px', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '8px', background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--text-main)' }}>{w.day}</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{w.date}</span>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '4px 0' }}>
+                      <span style={{ fontSize: '2rem' }}>{w.icon}</span>
+                      <div>
+                        <div style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--text-main)' }}>{w.temp}</div>
+                        <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>{w.weather}</div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.76rem', color: 'var(--text-muted)', paddingTop: '6px', borderTop: '1px solid var(--border-color)' }}>
+                      <span>🌧️ {language === 'hi' ? 'वर्षा' : 'Rain'}: <strong>{w.rain}</strong></span>
+                      <span>💧 {language === 'hi' ? 'नमी' : 'Humidity'}: <strong>{w.humidity}</strong></span>
+                    </div>
+
+                    <div style={{ marginTop: '4px' }}>
+                      <span className={`badge ${w.badgeClass}`} style={{ fontSize: '0.7rem', width: '100%', justifyContent: 'center' }}>
+                        {w.risk}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* SECTION 2: LIVE APMC MANDI WHOLESALE RATES & TRENDS */}
             <div className="glass-panel" style={{ padding: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
                 <div>
-                  <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '4px' }}>
-                    🗺️ Western Rajasthan GIS Outbreak Radar & KVK Alerts
-
+                  <h2 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '4px', color: 'var(--text-main)' }}>
+                    📈 {language === 'hi' ? 'प्रमुख कृषि उपज मंडी भाव (ताजा दैनिक दरें)' : language === 'mrw' ? 'खास मंडी भाव (आज रा ताजा भाव)' : 'Major APMC Mandi Wholesale Commodity Rates'}
                   </h2>
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                    Micro-climate disease telemetry synced with Krishi Vigyan Kendra (KVK) centers.
+                    {language === 'hi' ? 'जोधपुर, मेड़ता, नागौर, पाली व बीकानेर मंडियों के मॉडल भाव व आवक रिपोर्ट' : 'Live commodity prices with daily price variation & arrival volume.'}
+                  </p>
+                </div>
+
+                <div className="badge badge-emerald" style={{ fontSize: '0.78rem' }}>
+                  ⚡ e-NAM & APMC Synced
+                </div>
+              </div>
+
+              {/* Mandi Rates Table */}
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+                  <thead>
+                    <tr style={{ background: 'rgba(5, 150, 105, 0.1)', borderBottom: '2px solid var(--border-color)', textAlign: 'left' }}>
+                      <th style={{ padding: '12px 16px', color: 'var(--text-main)', fontWeight: 700 }}>{language === 'hi' ? 'फसल / जिस' : 'Commodity'}</th>
+                      <th style={{ padding: '12px 16px', color: 'var(--text-main)', fontWeight: 700 }}>{language === 'hi' ? 'मंडी का नाम' : 'Mandi'}</th>
+                      <th style={{ padding: '12px 16px', color: 'var(--text-main)', fontWeight: 700 }}>{language === 'hi' ? 'मॉडल भाव (₹/क्विंटल)' : 'Modal Price'}</th>
+                      <th style={{ padding: '12px 16px', color: 'var(--text-main)', fontWeight: 700 }}>{language === 'hi' ? 'आज का बदलाव' : 'Today Change'}</th>
+                      <th style={{ padding: '12px 16px', color: 'var(--text-main)', fontWeight: 700 }}>{language === 'hi' ? 'दैनिक आवक' : 'Arrival Volume'}</th>
+                      <th style={{ padding: '12px 16px', color: 'var(--text-main)', fontWeight: 700 }}>{language === 'hi' ? 'किसान सलाह' : 'Advisory'}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { crop: language === 'hi' ? 'जीरा (Jeera)' : 'Cumin (Jeera)', mandi: 'Jodhpur (जोधपुर)', price: '₹ 28,450', change: '+₹ 350 ▲', trend: 'up', arrival: '1,420 क्विंटल', advice: language === 'hi' ? 'रोकें / भाव मजबूत' : 'Hold / Bullish' },
+                      { crop: language === 'hi' ? 'ईसबगोल (Isabgol)' : 'Psyllium (Isabgol)', mandi: 'Merta City (मेड़ता)', price: '₹ 16,200', change: '+₹ 180 ▲', trend: 'up', arrival: '850 क्विंटल', advice: language === 'hi' ? 'बेचने का अच्छा समय' : 'Good to Sell' },
+                      { crop: language === 'hi' ? 'सरसों (Mustard)' : 'Mustard (Sarson)', mandi: 'Nagaur (नागौर)', price: '₹ 5,840', change: '-₹ 45 ▼', trend: 'down', arrival: '2,600 क्विंटल', advice: language === 'hi' ? 'सामान्य व्यापार' : 'Neutral' },
+                      { crop: language === 'hi' ? 'गेहूं (Wheat)' : 'Wheat (Gehun)', mandi: 'Pali (पाली)', price: '₹ 2,480', change: '+₹ 20 ▲', trend: 'up', arrival: '3,800 क्विंटल', advice: language === 'hi' ? 'स्थिर मांग' : 'Stable' },
+                      { crop: language === 'hi' ? 'ग्वार (Guar Gum)' : 'Guar Seed', mandi: 'Bikaner (बीकानेर)', price: '₹ 5,350', change: '+₹ 90 ▲', trend: 'up', arrival: '1,950 क्विंटल', advice: language === 'hi' ? 'सुधार के संकेत' : 'Bullish' },
+                      { crop: language === 'hi' ? 'मूंग (Moong)' : 'Green Gram (Moong)', mandi: 'Barmer (बाड़मेर)', price: '₹ 8,200', change: '-₹ 110 ▼', trend: 'down', arrival: '640 क्विंटल', advice: language === 'hi' ? 'रोकें' : 'Hold' },
+                      { crop: language === 'hi' ? 'बाजरा (Pearl Millet)' : 'Bajra', mandi: 'Jodhpur (जोधपुर)', price: '₹ 2,250', change: '+₹ 15 ▲', trend: 'up', arrival: '1,100 क्विंटल', advice: language === 'hi' ? 'स्थिर' : 'Steady' }
+                    ].map((row, rIdx) => (
+                      <tr key={rIdx} style={{ borderBottom: '1px solid var(--border-color)', background: rIdx % 2 === 0 ? 'transparent' : 'rgba(0,0,0,0.01)' }}>
+                        <td style={{ padding: '12px 16px', fontWeight: 700, color: 'var(--text-main)' }}>{row.crop}</td>
+                        <td style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>{row.mandi}</td>
+                        <td style={{ padding: '12px 16px', fontWeight: 800, color: 'var(--accent-emerald)', fontSize: '0.95rem' }}>{row.price}</td>
+                        <td style={{ padding: '12px 16px', fontWeight: 700, color: row.trend === 'up' ? '#10b981' : '#f43f5e' }}>{row.change}</td>
+                        <td style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>{row.arrival}</td>
+                        <td style={{ padding: '12px 16px' }}>
+                          <span className={row.trend === 'up' ? 'badge badge-emerald' : 'badge badge-amber'} style={{ fontSize: '0.72rem' }}>
+                            {row.advice}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* SECTION 3: WESTERN RAJASTHAN GIS OUTBREAK RADAR & KVK ALERTS */}
+            <div className="glass-panel" style={{ padding: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
+                <div>
+                  <h2 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '4px', color: 'var(--text-main)' }}>
+                    🗺️ {language === 'hi' ? 'पश्चिमी राजस्थान जिला रोग व कीट प्रकोप रडार (KVK बुलेटिन)' : 'Western Rajasthan GIS Outbreak Radar & KVK Alerts'}
+                  </h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                    {language === 'hi' ? 'कृषि विज्ञान केंद्र (KVK) व एम्स ट्राइएज द्वारा जारी जिलावार बीमारी चेतावनी' : 'District-wise pathology bulletins synced with Krishi Vigyan Kendra centers.'}
                   </p>
                 </div>
 
@@ -2901,14 +2637,14 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
                         padding: '6px 12px',
                         borderRadius: '8px',
                         fontSize: '0.78rem',
-                        fontWeight: 600,
-                        border: 'none',
+                        fontWeight: 700,
+                        border: '1px solid var(--border-color)',
                         cursor: 'pointer',
-                        background: selectedDistrictFilter === dist ? 'var(--accent-emerald)' : 'rgba(255,255,255,0.06)',
-                        color: selectedDistrictFilter === dist ? '#fff' : 'var(--text-muted)'
+                        background: selectedDistrictFilter === dist ? 'var(--accent-emerald)' : 'var(--bg-secondary)',
+                        color: selectedDistrictFilter === dist ? '#ffffff' : 'var(--text-muted)'
                       }}
                     >
-                      {dist === 'all' ? 'All Districts' : dist}
+                      {dist === 'all' ? (language === 'hi' ? 'सभी जिले' : 'All Districts') : dist}
                     </button>
                   ))}
                 </div>
@@ -2916,25 +2652,25 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
                 {[
-                  { district: 'Jodhpur (जोधपुर)', threat: 'Lumpy Skin Alert in Mandore Block', level: 'HIGH', humidity: '78%', sporeIndex: '88%', status: 'Cattle Vaccination Active', kvkPhone: '0291-2571234' },
-                  { district: 'Pali (पाली)', threat: 'Yellow Rust in Wheat crops', level: 'MODERATE', humidity: '64%', sporeIndex: '62%', status: 'Foliar Spray Advised', kvkPhone: '02932-220111' },
-                  { district: 'Nagaur (नागौर)', threat: 'Powdery Mildew in Mustard (सरसों)', level: 'MODERATE', humidity: '69%', sporeIndex: '71%', status: 'Sulfur Dusting Advised', kvkPhone: '02582-240222' },
-                  { district: 'Barmer (बाड़मेर)', threat: 'Whitefly Infestation in Cotton (कपास)', level: 'HIGH', humidity: '72%', sporeIndex: '81%', status: 'Neem Oil Spray Active', kvkPhone: '02982-220333' },
-                  { district: 'Jaisalmer (जैसलमेर)', threat: 'Locust Swarm Radar / Low Spore Risk', level: 'LOW', humidity: '42%', sporeIndex: '28%', status: 'Surveillance Active', kvkPhone: '02992-250444' }
+                  { district: 'Jodhpur (जोधपुर)', threat: 'Lumpy Skin Alert in Mandore Block (लंपी त्वचा रोग)', level: 'HIGH', humidity: '78%', sporeIndex: '88%', status: 'Cattle Vaccination Active', kvkPhone: '0291-2571234' },
+                  { district: 'Pali (पाली)', threat: 'Yellow Rust in Wheat crops (गेहूं पीला रतुआ)', level: 'MODERATE', humidity: '64%', sporeIndex: '62%', status: 'Foliar Spray Advised', kvkPhone: '02932-220111' },
+                  { district: 'Nagaur (नागौर)', threat: 'Powdery Mildew in Mustard (सरसों सफेद रोली)', level: 'MODERATE', humidity: '69%', sporeIndex: '71%', status: 'Sulfur Dusting Advised', kvkPhone: '02582-240222' },
+                  { district: 'Barmer (बाड़मेर)', threat: 'Whitefly Infestation in Cotton (कपास सफेद मक्खी)', level: 'HIGH', humidity: '72%', sporeIndex: '81%', status: 'Neem Oil Spray Active', kvkPhone: '02982-220333' },
+                  { district: 'Jaisalmer (जैसलमेर)', threat: 'Locust Swarm Radar / Low Spore Risk (टिड्डी निगरानी)', level: 'LOW', humidity: '42%', sporeIndex: '28%', status: 'Surveillance Active', kvkPhone: '02992-250444' }
                 ]
                 .filter(item => selectedDistrictFilter === 'all' || item.district.includes(selectedDistrictFilter))
                 .map((item, idx) => (
-                  <div key={idx} className="glass-panel-glow" style={{ padding: '18px', borderLeft: item.level === 'HIGH' ? '4px solid #f43f5e' : item.level === 'MODERATE' ? '4px solid #f59e0b' : '4px solid #10b981' }}>
+                  <div key={idx} className="glass-panel-glow" style={{ padding: '18px', borderLeft: item.level === 'HIGH' ? '5px solid var(--accent-rose)' : item.level === 'MODERATE' ? '5px solid var(--accent-amber)' : '5px solid var(--accent-emerald)', background: 'var(--bg-card)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                       <span className={item.level === 'HIGH' ? 'badge badge-rose' : item.level === 'MODERATE' ? 'badge badge-amber' : 'badge badge-emerald'}>{item.level} RISK</span>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Humidity: {item.humidity}</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{language === 'hi' ? 'नमी' : 'Humidity'}: {item.humidity}</span>
                     </div>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '4px' }}>{item.district}</h3>
-                    <p style={{ fontSize: '0.88rem', color: 'var(--text-main)', marginBottom: '8px' }}>{item.threat}</p>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '4px', color: 'var(--text-main)' }}>{item.district}</h3>
+                    <p style={{ fontSize: '0.88rem', color: 'var(--text-main)', marginBottom: '8px', lineHeight: 1.4 }}>{item.threat}</p>
                     
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                      <span style={{ fontSize: '0.78rem', color: '#34d399', fontWeight: 600 }}>{item.status}</span>
-                      <a href={`tel:${item.kvkPhone}`} className="btn-secondary" style={{ fontSize: '0.75rem', padding: '4px 10px', textDecoration: 'none' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px', paddingTop: '8px', borderTop: '1px solid var(--border-color)' }}>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--accent-emerald)', fontWeight: 700 }}>{item.status}</span>
+                      <a href={`tel:${item.kvkPhone}`} className="btn-secondary" style={{ fontSize: '0.75rem', padding: '5px 12px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                         <PhoneCall size={12} />
                         <span>KVK Officer</span>
                       </a>
@@ -2943,6 +2679,33 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
                 ))}
               </div>
             </div>
+
+            {/* SECTION 4: AI DOCTOR ASSISTANT PROMPT CALLOUT */}
+            <div className="glass-panel-glow" style={{ padding: '20px 24px', borderRadius: '18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.12) 0%, rgba(8, 145, 178, 0.12) 100%)', border: '1px solid var(--accent-emerald)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div style={{ background: 'var(--gradient-agro)', width: '48px', height: '48px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Bot size={24} color="#ffffff" />
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 4px 0' }}>
+                    {language === 'hi' ? 'मौसम या मंडी भाव से जुड़ा कोई सवाल है?' : 'Have any questions regarding weather or mandi prices?'}
+                  </h4>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
+                    {language === 'hi' ? 'नीचे दाईं ओर "🩺 AI डॉक्टर से पूछें" बटन दबाकर बोलकर या लिखकर सलाह लें।' : 'Tap the floating "🩺 Ask AI Doctor" button in the bottom right corner anytime.'}
+                  </p>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => setShowFloatingChat(true)}
+                className="btn-primary"
+                style={{ padding: '10px 18px', borderRadius: '12px', fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+              >
+                <Bot size={16} />
+                <span>{language === 'hi' ? 'AI डॉक्टर से पूछें' : 'Ask AI Doctor'}</span>
+              </button>
+            </div>
+
           </div>
         )}
 
