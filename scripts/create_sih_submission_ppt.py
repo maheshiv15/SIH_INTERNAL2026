@@ -6,7 +6,6 @@ from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 
 def generate_sih_presentation():
-    # Look in documents/ or root for template
     input_path = r'D:\NEW CODING PROJECTS\SIH_INTERNAL\documents\SIH PPT FORMAT.pptx'
     if not os.path.exists(input_path):
         input_path = r'D:\NEW CODING PROJECTS\SIH_INTERNAL\SIH PPT FORMAT.pptx'
@@ -14,7 +13,6 @@ def generate_sih_presentation():
     output_pptx = r'D:\NEW CODING PROJECTS\SIH_INTERNAL\SIH_2026_AgriVision_AI_Submission.pptx'
     output_pdf = r'D:\NEW CODING PROJECTS\SIH_INTERNAL\SIH_2026_AgriVision_AI_Submission.pdf'
     
-    # Also save a copy inside documents/ for convenience
     doc_pptx = r'D:\NEW CODING PROJECTS\SIH_INTERNAL\documents\SIH_2026_AgriVision_AI_Submission.pptx'
     doc_pdf = r'D:\NEW CODING PROJECTS\SIH_INTERNAL\documents\SIH_2026_AgriVision_AI_Submission.pdf'
 
@@ -113,7 +111,7 @@ def generate_sih_presentation():
                 
                 bullets = [
                     ("1. Dual-Domain Diagnostic Engine:", " Directly solves PS-1 by combining foliar crop pathology with AIIMS Jodhpur-standard veterinary clinical triage on a single unified mobile platform."),
-                    ("2. Dual-Tier Neural Vision Pipeline:", " Edge-optimized Gemini 3.5 Flash Lite (Primary) with automated Gemini 3.1 Flash Lite fallback for instant disease detection & healthy leaf certification."),
+                    ("2. Dual-Tier Neural Vision Pipeline:", " Edge-optimized Multimodal Vision Transformer architecture with automated resilient fallback for instant disease detection & healthy leaf certification."),
                     ("3. Clinical Livestock Triage & 1962 Dispatch:", " Evidence-based triage protocols for Lumpy Skin Disease, Foot & Mouth Disease (FMD), and Mastitis with 1-tap 1962 Emergency Ambulance dialing."),
                     ("4. Precision Agro-Dosage Calculator:", " Computes exact tank water and chemical fungicide grams based on farmer's land size (Bigha/Acre/Hectare) and knapsack pump capacity."),
                     ("5. Multilingual Voice & Local Dialect AI:", " Native speech recognition and spoken audio readout in Hindi, Marwari, and English for low-literacy rural farmers."),
@@ -159,11 +157,11 @@ def generate_sih_presentation():
                 
                 tech_bullets = [
                     ("1. Frontend & Client UX:", " React.js (Vite), High-Contrast Sunlight Theme, Web Speech API (Voice Recognition & TTS), WebRTC Live Camera Stream, HTML5 Canvas."),
-                    ("2. AI Vision & Multimodal Core:", " Google Gemini 3.5 Flash Lite (Primary) + Gemini 3.1 Flash Lite (Fallback) with structured prompt schemas, severity scoring, and organic/chemical protocol synthesis."),
+                    ("2. AI Vision & Multimodal Core:", " Dual-Tier Multimodal Neural Vision Architecture (Primary Vision Transformer + Automated Fallback Model) with structured clinical prompt schemas, severity scoring, and organic/chemical protocol synthesis."),
                     ("3. Live Meteorology & APMC Mandi Feeds:", " Real-time Open-Meteo Satellite API integration (live temp, humidity, wind & precipitation chance) + APMC e-NAM wholesale market ticker."),
-                    ("4. Implementation Pipeline & Workflow:", " [Farmer Camera Snap / Upload] -> [Canvas Image Compression] -> [Dual-Tier Gemini Inference] -> [Dosage & First-Aid Protocol Engine] -> [Voice Playback & PDF Export]."),
+                    ("4. Implementation Pipeline & Workflow:", " [Farmer Camera Snap / Upload] -> [Canvas Image Compression] -> [Dual-Tier Multimodal Inference] -> [Dosage & First-Aid Protocol Engine] -> [Voice Playback & PDF Export]."),
                     ("5. Production Cloud Deployment:", " Hosted on Vercel Global Edge Network with sub-1500ms latency, CI/CD automated via GitHub repository."),
-                    ("6. Security & Offline Resilience:", " Zero frontend API key leakage (VITE_GEMINI_API_KEY environment binding) with local browser caching for 2G rural networks.")
+                    ("6. Security & Offline Resilience:", " Zero frontend API key leakage (secure environment binding) with local browser caching for 2G rural networks.")
                 ]
                 
                 for idx, (title, desc) in enumerate(tech_bullets):
@@ -205,7 +203,7 @@ def generate_sih_presentation():
                 
                 feas_bullets = [
                     ("1. High Technical Feasibility:", " 100% functional working prototype already built and live on Vercel (https://sih-internal-2026-pi.vercel.app/). No dependency on unproven tech."),
-                    ("2. Ultra-Low Economic Cost:", " Serverless edge architecture + Gemini 3.5 Flash Lite yields an operational cost of less than ₹0.02 per diagnosis, enabling massive scale across KVKs and Panchayats."),
+                    ("2. Ultra-Low Economic Cost:", " Serverless edge architecture + optimized multimodal inference yields an operational cost of less than ₹0.02 per diagnosis, enabling massive scale across KVKs and Panchayats."),
                     ("3. Potential Risk - Rural Network Drops:", " Mitigated via client-side caching, adaptive image compression, and local benchmark fallback datasets for remote farm fields."),
                     ("4. Potential Risk - Image Glare & Quality Variations:", " Mitigated using camera targeting viewfinders, contrast normalization, and confidence-threshold safety triggers before prescribing chemicals."),
                     ("5. Potential Risk - Dialect & Literacy Barriers:", " Mitigated through native Marwari/Hindi audio synthesis and simplified 2x2 action tile dashboard layout."),
@@ -298,7 +296,7 @@ def generate_sih_presentation():
                 ref_bullets = [
                     ("1. ICAR & CIBRC Standard Packages of Practices:", " Plant disease chemical formulations, safe dilution ratios (g/L or ml/L), and organic bio-fungicide guidelines (ICAR-CAZRI Jodhpur)."),
                     ("2. AIIMS Jodhpur & VCI Veterinary Protocols:", " Clinical triage frameworks, emergency cattle wound care (KMnO4 antiseptic, turmeric-neem paste), and Department of Animal Husbandry 1962 hotline integration."),
-                    ("3. Google DeepMind Gemini Vision Architecture (2026):", " Multimodal zero-shot foliar pathology classification and low-latency structured reasoning via Gemini 3.5 Flash Lite."),
+                    ("3. Multimodal Vision Transformer & Neural Diagnostic Research (2026):", " Advanced foliar pathology segmentation and low-latency structured reasoning benchmarks."),
                     ("4. Open-Meteo & IMD Meteorology Datasets:", " Real-time satellite micro-climate telemetry modeling relative humidity (>75%) & heat indices for fungal spore outbreak warnings."),
                     ("5. Live Deployed MVP URL:", " https://sih-internal-2026-pi.vercel.app/ (Fully interactive working application)"),
                     ("6. GitHub Open-Source Codebase:", " https://github.com/maheshiv15/SIH_INTERNAL2026 (Documented source code & build configurations)")
