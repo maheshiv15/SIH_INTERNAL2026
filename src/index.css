@@ -198,6 +198,20 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
   overflow: hidden;
   animation: slideUpFade 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .floating-chat-container {
+    bottom: 8px !important;
+    right: 8px !important;
+    left: 8px !important;
+    width: auto !important;
+    max-width: calc(100vw - 16px) !important;
+    height: 84vh !important;
+    max-height: 88vh !important;
+    border-radius: 16px !important;
+  }
 }
 
 @keyframes slideUpFade {

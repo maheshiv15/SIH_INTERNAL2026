@@ -3413,8 +3413,24 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
           )}
 
           {/* Input Bar */}
-          <form onSubmit={handleSendMessage} style={{ padding: '10px', borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--bg-card)' }}>
-            <label style={{ cursor: 'pointer', padding: '6px', color: 'var(--text-muted)' }} title="Attach Photo">
+          <form 
+            onSubmit={handleSendMessage} 
+            style={{ 
+              padding: '8px 10px', 
+              borderTop: '1px solid var(--border-color)', 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '4px', 
+              background: 'var(--bg-card)', 
+              boxSizing: 'border-box', 
+              width: '100%',
+              overflow: 'hidden'
+            }}
+          >
+            <label 
+              style={{ cursor: 'pointer', padding: '6px 4px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} 
+              title="Attach Photo"
+            >
               <Paperclip size={18} />
               <input ref={chatImageInputRef} type="file" accept="image/*" onChange={handleChatImageSelect} style={{ display: 'none' }} />
             </label>
@@ -3422,7 +3438,7 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
             <button 
               type="button"
               onClick={() => startLiveCamera('chat')}
-              style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '6px' }}
+              style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '6px 4px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
               title="Camera"
             >
               <Camera size={18} />
@@ -3431,7 +3447,7 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
             <button 
               type="button"
               onClick={startVoiceInput}
-              style={{ background: isListening ? 'rgba(239, 68, 68, 0.2)' : 'transparent', border: 'none', color: isListening ? '#ef4444' : 'var(--text-muted)', cursor: 'pointer', padding: '6px', borderRadius: '50%' }}
+              style={{ background: isListening ? 'rgba(239, 68, 68, 0.2)' : 'transparent', border: 'none', color: isListening ? '#ef4444' : 'var(--text-muted)', cursor: 'pointer', padding: '6px 4px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
               title="Voice Input"
             >
               <Volume2 size={18} className={isListening ? 'animate-pulse' : ''} />
@@ -3441,14 +3457,38 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
               type="text"
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
-              placeholder={language === 'hi' ? 'यहाँ सवाल लिखें या बोलें...' : 'Ask question here...'}
-              style={{ flex: 1, padding: '8px 12px', borderRadius: '10px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.85rem', outline: 'none' }}
+              placeholder={language === 'hi' ? 'यहाँ सवाल लिखें...' : 'Ask question here...'}
+              style={{ 
+                flex: '1 1 0%', 
+                minWidth: '0px', 
+                padding: '8px 10px', 
+                borderRadius: '10px', 
+                background: 'var(--bg-secondary)', 
+                border: '1px solid var(--border-color)', 
+                color: 'var(--text-main)', 
+                fontSize: '0.84rem', 
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}
             />
 
             <button 
               type="submit"
               disabled={chatLoading || (!chatInput.trim() && !chatAttachedImage)}
-              style={{ background: 'var(--gradient-agro)', border: 'none', color: '#ffffff', padding: '8px 12px', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              style={{ 
+                background: 'var(--gradient-agro)', 
+                border: 'none', 
+                color: '#ffffff', 
+                padding: '8px 12px', 
+                borderRadius: '10px', 
+                cursor: 'pointer', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                flexShrink: 0,
+                minWidth: '38px',
+                height: '36px'
+              }}
             >
               <Send size={15} />
             </button>
