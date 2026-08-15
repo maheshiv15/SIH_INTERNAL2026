@@ -36,27 +36,28 @@ def generate_sih_presentation():
                 tf.clear()
                 
                 details = [
-                    ("Problem Statement ID:", " SIH1632 / Custom (AgriTech & AI)"),
-                    ("Problem Statement Title:", " AI-Powered Unified Agricultural Vision & Livestock Clinical Diagnostic System"),
+                    ("Problem Statement ID:", " Problem Statement 1 (Software PS)"),
+                    ("Problem Statement Title:", " Unified AI Agri-Vision Platform for Crop Advisory and Livestock Management"),
                     ("Theme:", " Agriculture, FoodTech & Rural Development"),
                     ("PS Category:", " Software"),
-                    ("Team Name:", " AgriVision AI (Team AIIMS-IITJ)"),
-                    ("Domain Leadership:", " Asst. Nursing Superintendent (AIIMS Jodhpur) & MMT Scholar (IIT Jodhpur)")
+                    ("Team Name:", " NeoMedtech"),
+                    ("Institute & AISHE Code:", " Indian Institute of Technology Jodhpur (IIT Jodhpur) [U-0395]"),
+                    ("Team Composition:", " Maheshiv Prajapat (Lead, AIIMS & IITJ), Dr. Eshitaa Panwar, Siddhant Shenvi, Mrunal Sonawale, Kishore Vijayakumar, Megha")
                 ]
                 
                 for idx, (label, val) in enumerate(details):
                     p = tf.add_paragraph() if idx > 0 else tf.paragraphs[0]
-                    p.space_after = Pt(6)
+                    p.space_after = Pt(4)
                     r1 = p.add_run()
                     r1.text = label
                     r1.font.bold = True
-                    r1.font.size = Pt(14)
+                    r1.font.size = Pt(13)
                     r1.font.color.rgb = RGBColor(15, 23, 42)
                     
                     r2 = p.add_run()
                     r2.text = val
                     r2.font.bold = False
-                    r2.font.size = Pt(14)
+                    r2.font.size = Pt(13)
                     r2.font.color.rgb = RGBColor(51, 65, 85)
 
     # ----------------------------------------------------
@@ -66,24 +67,24 @@ def generate_sih_presentation():
     for shape in slide2.shapes:
         if shape.has_text_frame:
             if 'IDEA TITLE' in shape.text:
-                shape.text_frame.text = "AgriVision AI: Unified Crop Neural Vision & Veterinary Triage System"
+                shape.text_frame.text = "AgriVision AI: Unified Neural Vision & Clinical Veterinary Triage"
                 p = shape.text_frame.paragraphs[0]
                 p.font.bold = True
                 p.font.size = Pt(20)
                 p.font.color.rgb = RGBColor(16, 185, 129)
             elif 'Your Team Name' in shape.text:
-                shape.text_frame.text = "AgriVision AI"
+                shape.text_frame.text = "NeoMedtech"
             elif 'Proposed Solution' in shape.text:
                 tf = shape.text_frame
                 tf.clear()
                 
                 bullets = [
-                    ("1. Dual-Domain Diagnostic Engine:", " Integrates foliar crop pathology with AIIMS Jodhpur-standard clinical veterinary triage in one unified mobile platform."),
+                    ("1. Dual-Domain Diagnostic Engine:", " Directly solves PS-1 by combining foliar crop pathology with AIIMS Jodhpur-standard veterinary clinical triage on a single unified mobile platform."),
                     ("2. Dual-Tier Neural Vision Pipeline:", " Edge-optimized Gemini 3.5 Flash Lite (Primary) with automated Gemini 3.1 Flash Lite fallback for instant disease detection & healthy leaf certification."),
                     ("3. Clinical Livestock Triage & 1962 Dispatch:", " Evidence-based triage protocols for Lumpy Skin Disease, Foot & Mouth Disease (FMD), and Mastitis with 1-tap 1962 Emergency Ambulance dialing."),
                     ("4. Precision Agro-Dosage Calculator:", " Computes exact tank water and chemical fungicide grams based on farmer's land size (Bigha/Acre/Hectare) and knapsack pump capacity."),
                     ("5. Multilingual Voice & Local Dialect AI:", " Native speech recognition and spoken audio readout in Hindi, Marwari, and English for low-literacy rural farmers."),
-                    ("6. Ground-Level Problem Solved:", " Bridges India's 1:12,000 rural vet doctor deficit and eliminates predatory pesticide over-prescription with zero-chemical organic recipes.")
+                    ("6. Historical Digital Farm Ledger:", " Integrated dairy milk yield logger, fertilizer expense records, and net seasonal profitability tracking for marginal farmers.")
                 ]
                 
                 for idx, (title, desc) in enumerate(bullets):
@@ -114,7 +115,7 @@ def generate_sih_presentation():
                 p.font.size = Pt(20)
                 p.font.color.rgb = RGBColor(16, 185, 129)
             elif 'Your Team Name' in shape.text:
-                shape.text_frame.text = "AgriVision AI"
+                shape.text_frame.text = "NeoMedtech"
             elif 'Technologies to be used' in shape.text:
                 tf = shape.text_frame
                 tf.clear()
@@ -156,7 +157,7 @@ def generate_sih_presentation():
                 p.font.size = Pt(20)
                 p.font.color.rgb = RGBColor(16, 185, 129)
             elif 'Your Team Name' in shape.text:
-                shape.text_frame.text = "AgriVision AI"
+                shape.text_frame.text = "NeoMedtech"
             elif 'Analysis of the feasibility' in shape.text:
                 tf = shape.text_frame
                 tf.clear()
@@ -198,7 +199,7 @@ def generate_sih_presentation():
                 p.font.size = Pt(20)
                 p.font.color.rgb = RGBColor(16, 185, 129)
             elif 'Your Team Name' in shape.text:
-                shape.text_frame.text = "AgriVision AI"
+                shape.text_frame.text = "NeoMedtech"
             elif 'Potential impact on the target audience' in shape.text:
                 tf = shape.text_frame
                 tf.clear()
@@ -240,7 +241,7 @@ def generate_sih_presentation():
                 p.font.size = Pt(20)
                 p.font.color.rgb = RGBColor(16, 185, 129)
             elif 'Your Team Name' in shape.text:
-                shape.text_frame.text = "AgriVision AI"
+                shape.text_frame.text = "NeoMedtech"
             elif 'Details / Links of the reference' in shape.text:
                 tf = shape.text_frame
                 tf.clear()

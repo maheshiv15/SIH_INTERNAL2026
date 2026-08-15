@@ -14,3 +14,8 @@ dist-ssr/
 # Environment
 .env
 .env.local
+
+# Internal Documents & Templates
+documents/
+*.docx
+*.pptx
