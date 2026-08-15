@@ -394,10 +394,16 @@ export default function App() {
   const testGeminiConnection = async (keyToTest) => {
     const key = (keyToTest !== undefined ? keyToTest : geminiApiKey)?.trim();
     if (!key) {
-      setApiTestStatus({ success: false, message: 'No API Key configured in system environment variables.' });
+      setApiTestStatus({ 
+        success: false, 
+        message: language === 'hi' ? '❌ कनेक्शन विफल' : language === 'mrw' ? '❌ कनेक्शन कोनी हुयो' : '❌ Connection Failed' 
+      });
       return;
     }
-    setApiTestStatus({ loading: true, message: 'Pinging Gemini 3.5 Flash Lite...' });
+    setApiTestStatus({ 
+      loading: true, 
+      message: language === 'hi' ? 'कनेक्शन की जांच हो रही है...' : language === 'mrw' ? 'जांच चाले है...' : 'Testing connection...' 
+    });
     const startTime = Date.now();
     try {
       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${key}`, {
@@ -408,10 +414,12 @@ export default function App() {
       const latency = Date.now() - startTime;
       const data = await res.json();
       if (res.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-        setApiTestStatus({ success: true, message: `✅ Connected to Gemini 3.5 Flash Lite (${latency}ms latency)!` });
+        setApiTestStatus({ 
+          success: true, 
+          message: language === 'hi' ? `✅ सफलतापूर्वक कनेक्टेड (${latency}ms)` : language === 'mrw' ? `✅ सफलतापूर्वक जुड़ ग्यो (${latency}ms)` : `✅ Connected Successfully (${latency}ms)` 
+        });
       } else {
         // Fallback test to Gemini 3.1 Flash Lite
-        setApiTestStatus({ loading: true, message: 'Testing fallback Gemini 3.1 Flash Lite...' });
         const res2 = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${key}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -420,13 +428,22 @@ export default function App() {
         const latency2 = Date.now() - startTime;
         const data2 = await res2.json();
         if (res2.ok && data2.candidates?.[0]?.content?.parts?.[0]?.text) {
-          setApiTestStatus({ success: true, message: `✅ Connected to Gemini 3.1 Flash Lite (Fallback) (${latency2}ms latency)!` });
+          setApiTestStatus({ 
+            success: true, 
+            message: language === 'hi' ? `✅ सफलतापूर्वक कनेक्टेड (${latency2}ms)` : language === 'mrw' ? `✅ सफलतापूर्वक जुड़ ग्यो (${latency2}ms)` : `✅ Connected Successfully (${latency2}ms)` 
+          });
         } else {
-          setApiTestStatus({ success: false, message: `❌ Connection failed: ${data.error?.message || data2.error?.message || 'Invalid API Key or quota error'}` });
+          setApiTestStatus({ 
+            success: false, 
+            message: language === 'hi' ? '❌ कनेक्शन विफल' : language === 'mrw' ? '❌ कनेक्शन कोनी हुयो' : '❌ Connection Failed' 
+          });
         }
       }
     } catch (err) {
-      setApiTestStatus({ success: false, message: `❌ Network Error: ${err.message}` });
+      setApiTestStatus({ 
+        success: false, 
+        message: language === 'hi' ? '❌ कनेक्शन विफल' : language === 'mrw' ? '❌ कनेक्शन कोनी हुयो' : '❌ Connection Failed' 
+      });
     }
   };
 
@@ -1369,7 +1386,7 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
               title="Test AI Model Connection & Status"
             >
               <Zap size={15} color="#10b981" />
-              <span>{language === 'hi' ? '⚡ AI मॉडल टेस्ट' : language === 'mrw' ? '⚡ AI टेस्ट' : '⚡ Test AI Connection'}</span>
+              <span>{language === 'hi' ? 'AI मॉडल टेस्ट' : language === 'mrw' ? 'AI टेस्ट' : 'Test AI Connection'}</span>
             </button>
 
             {/* Language Switcher */}
@@ -3023,7 +3040,7 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
           </div>
         </div>
       )}
-      {/* AI API Key & Gemini 3.5 / 3.1 Flash Lite Diagnostics Modal */}
+      {/* AI Model Connection Status Modal */}
       {showApiModal && (
         <div style={{
           position: 'fixed',
@@ -3036,21 +3053,16 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
           justifyContent: 'center',
           padding: '20px'
         }}>
-          <div className="glass-panel-glow" style={{ width: '100%', maxWidth: '520px', padding: '28px', borderRadius: '20px', border: '1px solid rgba(16, 185, 129, 0.4)', position: 'relative' }}>
+          <div className="glass-panel-glow" style={{ width: '100%', maxWidth: '440px', padding: '24px', borderRadius: '20px', border: '1px solid rgba(16, 185, 129, 0.4)', position: 'relative' }}>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{ background: 'var(--gradient-agro)', padding: '8px', borderRadius: '10px', display: 'flex' }}>
                   <Zap size={20} color="#ffffff" />
                 </div>
-                <div>
-                  <h3 style={{ fontSize: '1.15rem', fontWeight: 800 }}>
-                    {language === 'hi' ? 'AI मॉडल कनेक्टिविटी व स्थिति' : language === 'mrw' ? 'AI मॉडल स्थिति जांच' : 'AI Model Health & Diagnostics'}
-                  </h3>
-                  <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                    Dual-Tier: <b>Gemini 3.5 Flash Lite</b> → <b>Gemini 3.1 Flash Lite</b>
-                  </p>
-                </div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>
+                  {language === 'hi' ? 'AI मॉडल स्थिति जांच' : language === 'mrw' ? 'AI मॉडल स्थिति जांच' : 'AI Model Connection Status'}
+                </h3>
               </div>
               <button 
                 onClick={() => setShowApiModal(false)}
@@ -3061,31 +3073,24 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
               </button>
             </div>
 
-            {/* Model Architecture Info */}
-            <div style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '12px 16px', borderRadius: '12px', marginBottom: '18px', fontSize: '0.82rem', lineHeight: 1.5 }}>
-              <div style={{ fontWeight: 700, color: '#34d399', marginBottom: '4px' }}>⚡ Active Pipeline Architecture</div>
-              <div style={{ color: 'var(--text-muted)' }}>
-                1. <b>Primary Model:</b> <code style={{ color: '#10b981' }}>gemini-3.5-flash-lite</code> (Multimodal vision & chat)<br/>
-                2. <b>Automatic Fallback:</b> <code style={{ color: '#10b981' }}>gemini-3.1-flash-lite</code> (Failover engine)
-              </div>
-            </div>
-
             {/* Live Test Feedback */}
             {apiTestStatus && (
               <div style={{
-                padding: '14px 16px',
+                padding: '16px 18px',
                 borderRadius: '12px',
                 marginBottom: '18px',
-                fontSize: '0.88rem',
+                fontSize: '0.95rem',
                 background: apiTestStatus.loading ? 'rgba(59, 130, 246, 0.1)' : apiTestStatus.success ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
                 border: `1px solid ${apiTestStatus.loading ? '#3b82f6' : apiTestStatus.success ? '#10b981' : '#ef4444'}`,
                 color: apiTestStatus.loading ? '#93c5fd' : apiTestStatus.success ? '#34d399' : '#fca5a5',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px'
+                justifyContent: 'center',
+                gap: '10px',
+                textAlign: 'center'
               }}>
-                {apiTestStatus.loading && <RefreshCw size={16} className="spin" />}
-                <span style={{ fontWeight: 600 }}>{apiTestStatus.message}</span>
+                {apiTestStatus.loading && <RefreshCw size={18} className="spin" />}
+                <span style={{ fontWeight: 700 }}>{apiTestStatus.message}</span>
               </div>
             )}
 
@@ -3098,7 +3103,7 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
                 disabled={apiTestStatus?.loading}
               >
                 <RefreshCw size={15} className={apiTestStatus?.loading ? 'spin' : ''} />
-                <span>{language === 'hi' ? 'पुन: टेस्ट करें (Re-test)' : 'Re-test Connection'}</span>
+                <span>{language === 'hi' ? 'पुन: टेस्ट करें' : language === 'mrw' ? 'पाछो टेस्ट करो' : 'Re-test'}</span>
               </button>
 
               <button 
