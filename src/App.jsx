@@ -41,19 +41,33 @@ import {
   Copy,
   CheckCheck,
   Send,
-  RefreshCcw
+  RefreshCcw,
+  Sun,
+  Moon,
+  ArrowLeft,
+  Home,
+  Bot,
+  MessageCircle
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export default function App() {
-  // Navigation State
-  const [activeTab, setActiveTab] = useState('crop'); // crop, livestock, logbook, advisory, alerts, pitchdeck, team
+  // Navigation & Theme State
+  const [activeTab, setActiveTab] = useState('home'); // home, crop, livestock, logbook, advisory, pitchdeck, team
+  const [theme, setTheme] = useState(() => localStorage.getItem('AGRIVISION_THEME') || 'light');
+  const [showFloatingChat, setShowFloatingChat] = useState(false);
   const [language, setLanguage] = useState('hi'); // 'en', 'hi', 'mrw'
   const [lowBandwidth, setLowBandwidth] = useState(false);
   const [geminiApiKey, setGeminiApiKey] = useState(import.meta.env.VITE_GEMINI_API_KEY || localStorage.getItem('AGRIVISION_GEMINI_KEY') || '');
   const [showApiModal, setShowApiModal] = useState(false);
   const [tempKeyInput, setTempKeyInput] = useState('');
   const [apiTestStatus, setApiTestStatus] = useState(null);
+
+  // Sync Theme with HTML Document Element
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('AGRIVISION_THEME', theme);
+  }, [theme]);
 
   // Chat Image Attachment & Voice States
   const [chatAttachedImage, setChatAttachedImage] = useState(null); // { file, previewUrl, base64 }
@@ -1346,17 +1360,46 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
           
           {/* Logo & Identity */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <div style={{ background: 'var(--gradient-agro)', padding: '10px', borderRadius: '14px', display: 'flex' }}>
-              <Sprout size={28} color="#ffffff" />
-            </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <h1 style={{ fontSize: '1.4rem', fontWeight: 800 }}>AgriVision AI</h1>
-                <span className="badge badge-emerald">SIH 2026 Candidate</span>
+            {activeTab !== 'home' && (
+              <button
+                onClick={() => setActiveTab('home')}
+                className="btn-secondary"
+                style={{
+                  padding: '8px 14px',
+                  borderRadius: '12px',
+                  fontSize: '0.82rem',
+                  fontWeight: 700,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  border: '1px solid var(--accent-emerald)',
+                  color: 'var(--accent-emerald)',
+                  background: 'rgba(5, 150, 105, 0.1)',
+                  cursor: 'pointer'
+                }}
+                title="Go back to Home (मुख्य पृष्ठ)"
+              >
+                <ArrowLeft size={16} />
+                <span>{language === 'hi' ? 'मुख्य पृष्ठ' : language === 'mrw' ? 'होम' : 'Home'}</span>
+              </button>
+            )}
+
+            <div 
+              onClick={() => setActiveTab('home')} 
+              style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
+            >
+              <div style={{ background: 'var(--gradient-agro)', padding: '10px', borderRadius: '14px', display: 'flex' }}>
+                <Sprout size={26} color="#ffffff" />
               </div>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Unified AI Agri-Vision & Livestock Clinical Diagnostic System | IIT Jodhpur
-              </p>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <h1 style={{ fontSize: '1.35rem', fontWeight: 800 }}>AgriVision AI</h1>
+                  <span className="badge badge-emerald">SIH 2026</span>
+                </div>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                  {language === 'hi' ? 'एआई फसल व पशु चिकित्सा ट्राइएज सिस्टम | IIT Jodhpur' : 'AI Agri-Vision & Livestock Triage | IIT Jodhpur'}
+                </p>
+              </div>
             </div>
           </div>
 
@@ -1374,10 +1417,10 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
                 fontSize: '0.8rem',
                 padding: '8px 14px',
                 borderRadius: '10px',
-                border: '1px solid rgba(16, 185, 129, 0.4)',
-                background: 'rgba(16, 185, 129, 0.1)',
-                color: '#34d399',
-                fontWeight: 600,
+                border: '1px solid var(--border-color)',
+                background: 'rgba(5, 150, 105, 0.08)',
+                color: 'var(--accent-emerald)',
+                fontWeight: 700,
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
@@ -1385,84 +1428,318 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
               }}
               title="Test AI Model Connection & Status"
             >
-              <Zap size={15} color="#10b981" />
+              <Zap size={15} color="var(--accent-emerald)" />
               <span>{language === 'hi' ? 'AI मॉडल टेस्ट' : language === 'mrw' ? 'AI टेस्ट' : 'Test AI Connection'}</span>
             </button>
 
+            {/* Light / Dark Mode Toggle */}
+            <button 
+              onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')}
+              className="btn-secondary"
+              style={{
+                padding: '8px 12px',
+                borderRadius: '10px',
+                fontSize: '0.8rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                cursor: 'pointer'
+              }}
+              title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+            >
+              {theme === 'light' ? <Moon size={15} color="#475569" /> : <Sun size={15} color="#f59e0b" />}
+              <span>{theme === 'light' ? (language === 'hi' ? '🌙 डार्क' : '🌙 Dark') : (language === 'hi' ? '☀️ लाइट' : '☀️ Light')}</span>
+            </button>
+
             {/* Language Switcher */}
-            <div style={{ display: 'flex', background: 'rgba(255,255,255,0.06)', borderRadius: '10px', padding: '4px' }}>
+            <div style={{ display: 'flex', background: 'rgba(0,0,0,0.06)', borderRadius: '10px', padding: '3px', border: '1px solid var(--border-color)' }}>
               <button 
                 onClick={() => setLanguage('hi')}
                 style={{
                   background: language === 'hi' ? 'var(--accent-emerald)' : 'transparent',
                   color: language === 'hi' ? '#fff' : 'var(--text-muted)',
-                  border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem'
+                  border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem'
                 }}>हिंदी</button>
               <button 
                 onClick={() => setLanguage('en')}
                 style={{
                   background: language === 'en' ? 'var(--accent-emerald)' : 'transparent',
                   color: language === 'en' ? '#fff' : 'var(--text-muted)',
-                  border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem'
+                  border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem'
                 }}>English</button>
               <button 
                 onClick={() => setLanguage('mrw')}
                 style={{
                   background: language === 'mrw' ? 'var(--accent-emerald)' : 'transparent',
                   color: language === 'mrw' ? '#fff' : 'var(--text-muted)',
-                  border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem'
+                  border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem'
                 }}>मारवाड़ी</button>
             </div>
 
             {/* AIIMS & IITJ Innovation Badge */}
-            <div className="glass-panel" style={{ padding: '6px 14px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', border: '1px solid rgba(16, 185, 129, 0.4)', color: '#34d399', fontWeight: 600 }}>
-              <Stethoscope size={16} color="#10b981" />
-              <span>🩺 AIIMS Jodhpur & IITJ Innovation</span>
+            <div className="glass-panel" style={{ padding: '6px 12px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', border: '1px solid rgba(5, 150, 105, 0.3)', color: 'var(--accent-emerald)', fontWeight: 700 }}>
+              <Stethoscope size={15} color="var(--accent-emerald)" />
+              <span>🩺 AIIMS & IITJ</span>
             </div>
 
           </div>
         </div>
 
-        {/* 4 Core Farmer Navigation Tabs */}
-        <nav style={{ display: 'flex', gap: '10px', marginTop: '16px', overflowX: 'auto', paddingBottom: '4px' }}>
-          {[
-            { id: 'crop', label: language === 'hi' ? '🌿 फसल AI निदान' : '🌿 Crop AI Vision', icon: Sprout },
-            { id: 'livestock', label: language === 'hi' ? '🐄 पशु स्वास्थ्य जांच' : '🐄 Livestock Health Triage', icon: Stethoscope },
-            { id: 'logbook', label: language === 'hi' ? '📊 फार्म व पशु खाता' : '📊 Digital Farm Ledger', icon: Activity },
-            { id: 'advisory', label: language === 'hi' ? '🗣️ AI सलाह व जिला अलर्ट' : '🗣️ Multilingual AI Advisory & Outbreak Alerts', icon: MessageSquare }
-          ].map(tab => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                style={{
-                  background: isActive ? 'var(--gradient-agro)' : 'rgba(255,255,255,0.04)',
-                  color: isActive ? '#ffffff' : 'var(--text-muted)',
-                  border: isActive ? 'none' : '1px solid var(--border-color)',
-                  padding: '10px 18px',
-                  borderRadius: '12px',
-                  fontWeight: 600,
-                  fontSize: '0.88rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <Icon size={18} />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
-        </nav>
+        {/* 4 Core Farmer Navigation Tabs (Only shown when not on Home for quick power-user switching) */}
+        {activeTab !== 'home' && (
+          <nav style={{ display: 'flex', gap: '8px', marginTop: '14px', overflowX: 'auto', paddingBottom: '2px' }}>
+            {[
+              { id: 'home', label: language === 'hi' ? '🏠 होम' : '🏠 Home', icon: Home },
+              { id: 'crop', label: language === 'hi' ? '🌿 फसल AI निदान' : '🌿 Crop AI Vision', icon: Sprout },
+              { id: 'livestock', label: language === 'hi' ? '🐄 पशु स्वास्थ्य जांच' : '🐄 Livestock Health Triage', icon: Stethoscope },
+              { id: 'logbook', label: language === 'hi' ? '📊 फार्म व पशु खाता' : '📊 Digital Farm Ledger', icon: Activity },
+              { id: 'advisory', label: language === 'hi' ? '🗣️ AI सलाह व जिला अलर्ट' : '🗣️ Multilingual AI Advisory & Outbreak Alerts', icon: MessageSquare }
+            ].map(tab => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{
+                    background: isActive ? 'var(--gradient-agro)' : 'rgba(0,0,0,0.03)',
+                    color: isActive ? '#ffffff' : 'var(--text-muted)',
+                    border: isActive ? 'none' : '1px solid var(--border-color)',
+                    padding: '8px 16px',
+                    borderRadius: '10px',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    whiteSpace: 'nowrap',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <Icon size={16} />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+        )}
       </header>
 
       {/* Main Content Body */}
       <main style={{ flex: 1, padding: '0 24px 32px 24px', maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
+
+        {/* ========================================================================= */}
+        {/* TAB 0: CLEAN FARMER HOME PORTAL (2x2 Clean Action Grid) */}
+        {/* ========================================================================= */}
+        {activeTab === 'home' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            
+            {/* Welcome Greeting Banner & Micro-Telemetry */}
+            <div className="glass-panel-glow" style={{ padding: '24px 28px', borderRadius: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+              <div>
+                <div className="badge badge-emerald" style={{ marginBottom: '8px' }}>
+                  {language === 'hi' ? '🌾 किसान सेवा केंद्र' : language === 'mrw' ? '🌾 किसान सेवा केंद्र' : '🌾 Farmer Service Center'}
+                </div>
+                <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '6px', color: 'var(--text-main)' }}>
+                  {language === 'hi' ? 'नमस्ते किसान भाई! एग्रीविज़न में आपका स्वागत है' : language === 'mrw' ? 'राम राम सा किसान भाई! एग्रीविज़न मांय थारो स्वागत है' : 'Welcome to AgriVision AI, Farmer!'}
+                </h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', maxWidth: '750px' }}>
+                  {language === 'hi' 
+                    ? 'अपनी आवश्यकता अनुसार नीचे दिए गए 4 मुख्य विकल्पों में से चुनें और तुरंत AI सहायता प्राप्त करें।' 
+                    : language === 'mrw' 
+                      ? 'थारी जरूरत मुजब नीचे दिया 4 कामां मांय सूं चुणो अर तुरंत AI मदद लेवो सा।' 
+                      : 'Select from the 4 primary agricultural functions below to access instant AI diagnostics and tools.'}
+                </p>
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '8px', background: 'rgba(5, 150, 105, 0.08)', padding: '12px 16px', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
+                <span className="badge badge-amber" style={{ fontSize: '0.78rem', padding: '4px 10px' }}>
+                  ⚠️ {language === 'hi' ? 'जोधपुर क्षेत्र: कवक झुलसा जोखिम मध्यम' : 'Jodhpur: Fungal Spore Risk Moderate'}
+                </span>
+                <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                  🌡️ 32°C | 💧 78% नमी | 🚑 1962 हेल्पलाइन
+                </span>
+              </div>
+            </div>
+
+            {/* 2x2 ACTION TILES GRID */}
+            <div className="home-grid-2x2">
+              
+              {/* TILE 1: CROP AI VISION DOCTOR */}
+              <div 
+                onClick={() => setActiveTab('crop')}
+                className="home-action-tile"
+                style={{ borderLeft: '6px solid var(--accent-emerald)' }}
+              >
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                    <div style={{ background: 'rgba(5, 150, 105, 0.15)', width: '56px', height: '56px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(5, 150, 105, 0.3)' }}>
+                      <Sprout size={32} color="var(--accent-emerald)" />
+                    </div>
+                    <span className="badge badge-emerald">
+                      {language === 'hi' ? '📸 फोटो जांच' : '📸 AI Vision'}
+                    </span>
+                  </div>
+                  <h3 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '8px', color: 'var(--text-main)' }}>
+                    {language === 'hi' ? '🌿 फसल AI डॉक्टर' : language === 'mrw' ? '🌿 फसल AI डॉक्टर' : '🌿 Crop AI Vision Doctor'}
+                  </h3>
+                  <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                    {language === 'hi' 
+                      ? 'पौधे की पत्ती की फोटो खींचें और तुरंत बीमारी, जैविक उपचार व कीटनाशक छिड़काव की सटीक मात्रा जानें।' 
+                      : language === 'mrw' 
+                        ? 'पत्ती री फोटो खींचो अर तुरंत बीमारी, देसी इलाज अर दवाई री मात्रा जानो सा।' 
+                        : 'Snap a leaf photo to diagnose plant pathogens, fungal blights, and calculate exact spray dosages.'}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '18px', paddingTop: '12px', borderTop: '1px solid var(--border-color)' }}>
+                  <span style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--accent-emerald)' }}>
+                    {language === 'hi' ? 'फसल जांच शुरू करें' : language === 'mrw' ? 'जांच शुरू करो' : 'Open Crop Doctor'}
+                  </span>
+                  <div style={{ background: 'rgba(5, 150, 105, 0.15)', width: '34px', height: '34px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ChevronRight size={18} color="var(--accent-emerald)" />
+                  </div>
+                </div>
+              </div>
+
+              {/* TILE 2: LIVESTOCK HEALTH TRIAGE */}
+              <div 
+                onClick={() => setActiveTab('livestock')}
+                className="home-action-tile"
+                style={{ borderLeft: '6px solid var(--accent-rose)' }}
+              >
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                    <div style={{ background: 'rgba(225, 29, 72, 0.15)', width: '56px', height: '56px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(225, 29, 72, 0.3)' }}>
+                      <Stethoscope size={32} color="var(--accent-rose)" />
+                    </div>
+                    <span className="badge badge-rose">
+                      {language === 'hi' ? '🚨 एम्स ट्राइएज' : '🚨 AIIMS Triage'}
+                    </span>
+                  </div>
+                  <h3 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '8px', color: 'var(--text-main)' }}>
+                    {language === 'hi' ? '🐄 पशु स्वास्थ्य ट्राइएज' : language === 'mrw' ? '🐄 ढोर-पशु जांच' : '🐄 Livestock Health Triage'}
+                  </h3>
+                  <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                    {language === 'hi' 
+                      ? 'मवेशी (गाय, भैंस, बकरी) के लक्षण जांचें, प्राथमिक उपचार प्रोटोकॉल व 1962 आपातकालीन पशु एम्बुलेंस सहायता पाएं।' 
+                      : language === 'mrw' 
+                        ? 'गाय, भैंस रा लक्षण जांचो, देसी इलाज अर 1962 एम्बुलेंस फोन लगावो सा।' 
+                        : 'Assess cattle symptoms (FMD, Lumpy, Mastitis), receive clinical first aid, and dial 1962 emergency.'}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '18px', paddingTop: '12px', borderTop: '1px solid var(--border-color)' }}>
+                  <span style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--accent-rose)' }}>
+                    {language === 'hi' ? 'पशु जांच शुरू करें' : language === 'mrw' ? 'पशु जांच शुरू करो' : 'Open Livestock Triage'}
+                  </span>
+                  <div style={{ background: 'rgba(225, 29, 72, 0.15)', width: '34px', height: '34px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ChevronRight size={18} color="var(--accent-rose)" />
+                  </div>
+                </div>
+              </div>
+
+              {/* TILE 3: DIGITAL FARM & LIVESTOCK LEDGER */}
+              <div 
+                onClick={() => setActiveTab('logbook')}
+                className="home-action-tile"
+                style={{ borderLeft: '6px solid var(--accent-cyan)' }}
+              >
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                    <div style={{ background: 'rgba(8, 145, 178, 0.15)', width: '56px', height: '56px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(8, 145, 178, 0.3)' }}>
+                      <Activity size={32} color="var(--accent-cyan)" />
+                    </div>
+                    <span className="badge badge-cyan">
+                      {language === 'hi' ? '📝 डिजिटल बहीखाता' : '📝 Digital Ledger'}
+                    </span>
+                  </div>
+                  <h3 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '8px', color: 'var(--text-main)' }}>
+                    {language === 'hi' ? '📊 फार्म व पशु खाता' : language === 'mrw' ? '📊 फार्म अर ढोर खाता' : '📊 Digital Farm Ledger'}
+                  </h3>
+                  <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                    {language === 'hi' 
+                      ? 'दैनिक दूध उत्पादन, खाद-बीज का खर्च, फसल बिक्री व शुद्ध मुनाफे का संपूर्ण डिजिटल रिकॉर्ड एक जगह रखें।' 
+                      : language === 'mrw' 
+                        ? 'दूध रो हिसाब, खाद-बीज रो खरचो अर मुनाफो एक जगह लिखो सा।' 
+                        : 'Log daily milk yield, fertilizer/seed expenses, farm sales, and calculate net profit margins.'}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '18px', paddingTop: '12px', borderTop: '1px solid var(--border-color)' }}>
+                  <span style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--accent-cyan)' }}>
+                    {language === 'hi' ? 'डिजिटल खाता खोलें' : language === 'mrw' ? 'खाता खोलो सा' : 'Open Ledger'}
+                  </span>
+                  <div style={{ background: 'rgba(8, 145, 178, 0.15)', width: '34px', height: '34px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ChevronRight size={18} color="var(--accent-cyan)" />
+                  </div>
+                </div>
+              </div>
+
+              {/* TILE 4: AGRO-WEATHER ALERTS & MANDI PRICES */}
+              <div 
+                onClick={() => setActiveTab('advisory')}
+                className="home-action-tile"
+                style={{ borderLeft: '6px solid var(--accent-amber)' }}
+              >
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                    <div style={{ background: 'rgba(217, 119, 6, 0.15)', width: '56px', height: '56px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(217, 119, 6, 0.3)' }}>
+                      <MessageSquare size={32} color="var(--accent-amber)" />
+                    </div>
+                    <span className="badge badge-amber">
+                      {language === 'hi' ? '🌦️ अलर्ट व मंडी' : '🌦️ Alerts & Mandi'}
+                    </span>
+                  </div>
+                  <h3 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '8px', color: 'var(--text-main)' }}>
+                    {language === 'hi' ? '📢 मौसम चेतावनी व मंडी भाव' : language === 'mrw' ? '📢 मौसम अलर्ट अर मंडी भाव' : '📢 Weather Alerts & Mandi Hub'}
+                  </h3>
+                  <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                    {language === 'hi' 
+                      ? 'कीट प्रकोप की पूर्व चेतावनी, वर्षा व तापमान का पूर्वानुमान एवं अपने जिले की मंडियों के ताजा भाव देखें।' 
+                      : language === 'mrw' 
+                        ? 'कीड़ा प्रकोप री पहली चेतावनी, मींह रो अनुमान अर जिला मंडी रा भाव देखो सा।' 
+                        : 'Check district pest outbreak bulletins, rain forecasts, and live APMC mandi crop rates.'}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '18px', paddingTop: '12px', borderTop: '1px solid var(--border-color)' }}>
+                  <span style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--accent-amber)' }}>
+                    {language === 'hi' ? 'अलर्ट व भाव देखें' : language === 'mrw' ? 'भाव देखो सा' : 'Open Alerts & Mandi'}
+                  </span>
+                  <div style={{ background: 'rgba(217, 119, 6, 0.15)', width: '34px', height: '34px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ChevronRight size={18} color="var(--accent-amber)" />
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Micro Footer Summary */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', padding: '12px 18px', borderRadius: '14px', background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                <PhoneCall size={16} color="var(--accent-rose)" />
+                <span>{language === 'hi' ? 'पशु स्वास्थ्य आपातकालीन हेल्पलाइन: 1962 (टोल-फ्री)' : 'National Veterinary Emergency Helpline: 1962'}</span>
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  onClick={() => setActiveTab('pitchdeck')}
+                  className="btn-secondary"
+                  style={{ fontSize: '0.78rem', padding: '6px 12px', borderRadius: '8px' }}
+                >
+                  <Presentation size={14} color="var(--accent-emerald)" />
+                  <span>{language === 'hi' ? 'प्रोजेक्ट विवरण' : 'SIH Pitch Deck'}</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('team')}
+                  className="btn-secondary"
+                  style={{ fontSize: '0.78rem', padding: '6px 12px', borderRadius: '8px' }}
+                >
+                  <Users size={14} color="var(--accent-cyan)" />
+                  <span>{language === 'hi' ? 'टीम परिचय' : 'AIIMS & IITJ Team'}</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        )}
 
         {/* TAB 1: CROP AI VISION */}
         {activeTab === 'crop' && (
@@ -3116,6 +3393,176 @@ Provide a 2 to 4 sentence clear, empathetic, and highly actionable medical/agric
             </div>
 
           </div>
+        </div>
+      )}
+
+      {/* Floating Multilingual AI Doctor Assistant (FAB & Pop-up Drawer) */}
+      {!showFloatingChat && (
+        <button 
+          onClick={() => setShowFloatingChat(true)}
+          className="floating-ai-fab"
+          title="Open AI Doctor Assistant (AI डॉक्टर से सलाह लें)"
+        >
+          <div style={{ background: 'rgba(255,255,255,0.25)', padding: '6px', borderRadius: '50%', display: 'flex' }}>
+            <Bot size={20} color="#ffffff" />
+          </div>
+          <span>{language === 'hi' ? '🩺 AI डॉक्टर से पूछें' : language === 'mrw' ? '🩺 AI डॉक्टर' : '🩺 Ask AI Doctor'}</span>
+        </button>
+      )}
+
+      {/* Floating AI Chat Window Drawer */}
+      {showFloatingChat && (
+        <div className="floating-chat-container glass-panel-glow" style={{ border: '2px solid var(--accent-emerald)', background: 'var(--bg-card)' }}>
+          {/* Header */}
+          <div style={{ padding: '12px 16px', background: 'var(--gradient-agro)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ background: 'rgba(255,255,255,0.2)', padding: '6px', borderRadius: '10px', display: 'flex' }}>
+                <Stethoscope size={18} color="#ffffff" />
+              </div>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>Dr. AgriVision AI</div>
+                <div style={{ fontSize: '0.72rem', opacity: 0.9 }}>
+                  {language === 'hi' ? 'पौधा व पशु विशेषज्ञ • AIIMS & IITJ' : 'Agri & Vet Specialist'}
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <button 
+                onClick={handleClearChat}
+                style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#ffffff', padding: '4px 8px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.72rem', fontWeight: 600 }}
+                title="Clear Chat"
+              >
+                <RefreshCcw size={12} />
+              </button>
+              <button 
+                onClick={() => setShowFloatingChat(false)}
+                style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#ffffff', width: '26px', height: '26px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800 }}
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          {/* Messages Area */}
+          <div style={{ flex: 1, padding: '14px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {chatMessages.map((msg, idx) => (
+              <div 
+                key={idx}
+                style={{
+                  alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+                  maxWidth: '88%',
+                  background: msg.sender === 'user' ? 'var(--gradient-agro)' : 'var(--bg-secondary)',
+                  color: msg.sender === 'user' ? '#ffffff' : 'var(--text-main)',
+                  padding: '10px 14px',
+                  borderRadius: msg.sender === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+                  border: msg.sender === 'user' ? 'none' : '1px solid var(--border-color)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                  fontSize: '0.85rem'
+                }}
+              >
+                {msg.image && (
+                  <img src={msg.image} alt="User Upload" style={{ width: '100%', maxHeight: '140px', objectFit: 'cover', borderRadius: '8px', marginBottom: '8px' }} />
+                )}
+                {msg.sender === 'ai' ? renderFormattedAiText(msg.text) : msg.text}
+                
+                {msg.sender === 'ai' && (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px', paddingTop: '4px', borderTop: '1px solid var(--border-color)', fontSize: '0.72rem' }}>
+                    <button 
+                      onClick={() => handleSpeakAdvice(msg.text, idx)}
+                      style={{ background: 'transparent', border: 'none', color: playingMessageIndex === idx ? '#10b981' : 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
+                    >
+                      <Volume2 size={13} />
+                      <span>{playingMessageIndex === idx ? 'सुन रहे हैं...' : 'सुनें'}</span>
+                    </button>
+                    <button 
+                      onClick={() => handleCopyAdvice(msg.text, idx)}
+                      style={{ background: 'transparent', border: 'none', color: copiedIndex === idx ? '#10b981' : 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    >
+                      {copiedIndex === idx ? <Check size={12} /> : <Copy size={12} />}
+                      <span>{copiedIndex === idx ? 'कॉपी' : 'कॉपी'}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+            
+            {chatLoading && (
+              <div style={{ alignSelf: 'flex-start', background: 'var(--bg-secondary)', padding: '10px 14px', borderRadius: '14px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                <RefreshCw size={14} className="spin" />
+                <span>{language === 'hi' ? 'डॉक्टर जांच कर रहे हैं...' : 'AI Doctor thinking...'}</span>
+              </div>
+            )}
+            <div ref={chatEndRef} />
+          </div>
+
+          {/* Quick Prompts Horizontal Strip */}
+          <div style={{ padding: '6px 10px', background: 'rgba(0,0,0,0.03)', borderTop: '1px solid var(--border-color)', display: 'flex', gap: '6px', overflowX: 'auto', whiteSpace: 'nowrap' }}>
+            {(quickPrompts[language] || quickPrompts.hi).slice(0, 3).map((prompt, pIdx) => (
+              <button 
+                key={pIdx}
+                onClick={() => handleSelectQuickPrompt(prompt.query)}
+                className="prompt-chip"
+                style={{ fontSize: '0.72rem', padding: '4px 10px' }}
+              >
+                <span>{prompt.label}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Attached Image Preview */}
+          {chatAttachedImage && (
+            <div style={{ padding: '6px 12px', background: 'rgba(5, 150, 105, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <img src={chatAttachedImage.previewUrl} alt="Attached" style={{ width: '32px', height: '32px', borderRadius: '6px', objectFit: 'cover' }} />
+                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--accent-emerald)' }}>📸 फोटो संलग्न</span>
+              </div>
+              <button onClick={removeChatImage} style={{ background: 'transparent', border: 'none', color: '#f43f5e', cursor: 'pointer' }}>
+                <X size={16} />
+              </button>
+            </div>
+          )}
+
+          {/* Input Bar */}
+          <form onSubmit={handleSendChatMessage} style={{ padding: '10px', borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--bg-card)' }}>
+            <label style={{ cursor: 'pointer', padding: '6px', color: 'var(--text-muted)' }} title="Attach Photo">
+              <Paperclip size={18} />
+              <input ref={chatImageInputRef} type="file" accept="image/*" onChange={handleChatImageSelect} style={{ display: 'none' }} />
+            </label>
+
+            <button 
+              type="button"
+              onClick={() => startLiveCamera('chat')}
+              style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '6px' }}
+              title="Camera"
+            >
+              <Camera size={18} />
+            </button>
+
+            <button 
+              type="button"
+              onClick={startVoiceInput}
+              style={{ background: isListening ? 'rgba(239, 68, 68, 0.2)' : 'transparent', border: 'none', color: isListening ? '#ef4444' : 'var(--text-muted)', cursor: 'pointer', padding: '6px', borderRadius: '50%' }}
+              title="Voice Input"
+            >
+              <Volume2 size={18} className={isListening ? 'animate-pulse' : ''} />
+            </button>
+
+            <input 
+              type="text"
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              placeholder={language === 'hi' ? 'यहाँ सवाल लिखें या बोलें...' : 'Ask question here...'}
+              style={{ flex: 1, padding: '8px 12px', borderRadius: '10px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.85rem', outline: 'none' }}
+            />
+
+            <button 
+              type="submit"
+              disabled={chatLoading || (!chatInput.trim() && !chatAttachedImage)}
+              style={{ background: 'var(--gradient-agro)', border: 'none', color: '#ffffff', padding: '8px 12px', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Send size={15} />
+            </button>
+          </form>
         </div>
       )}
     </div>
